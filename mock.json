@@ -1,0 +1,53 @@
+{
+  "user": {
+    "id": 1,
+    "name": "Alex"
+  },
+  "data": [
+    {
+      "date": "18.06.1991",
+      "rates": [
+        {
+          "name": "ETH",
+          "rate": 300000
+        },
+        {
+          "name": "SOL",
+          "rate": 5
+        },
+        {
+          "name": "LYX",
+          "rate": 300
+        }
+      ],
+      "wallets": [
+        {
+          "name": "Meta",
+          "coins": [
+            {
+              "name": "ETH",
+              "value": 10
+            },
+            {
+              "name": "LYX",
+              "value": 100
+            }
+          ]
+        },
+        {
+          "name": "Brave",
+          "coins": [
+            {
+              "name": "ETH",
+              "value": 20
+            },
+            {
+              "name": "SOL",
+              "value": 5
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
