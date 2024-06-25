@@ -1,4 +1,4 @@
-# LPT Backoffice
+# MY WALLET
 
 ### Install dependencies
 

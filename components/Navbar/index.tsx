@@ -42,7 +42,7 @@ export default function NavBar() {
         </Dropdown>
       </NavbarContent>
       <NavbarContent justify="center">
-        <p className="font-bold text-white">LPT BACKOFFICE</p>
+        <p className="font-bold text-white">My wallet</p>
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>

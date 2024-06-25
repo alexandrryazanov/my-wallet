@@ -9,10 +9,10 @@ import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
   title: {
-    default: "LPT Backoffice",
-    template: `%s - Admin panel for Lukso Partner Toolkit.`,
+    default: "MY WALLET",
+    template: `%s - Main.`,
   },
-  description: "Admin panel for Lukso Partner Toolkit.",
+  description: "My wallet",
   icons: {
     icon: "/favicon.ico",
   },
