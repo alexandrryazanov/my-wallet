@@ -11,12 +11,12 @@ module.exports = {
   theme: {
     colors: {
       primary: {
-        light: COLORS.SOFT_PINK,
-        DEFAULT: COLORS.FUCHSIA,
-      },
-      secondary: {
         light: COLORS.LILAC,
         DEFAULT: COLORS.SOFT_PURPLE,
+      },
+      secondary: {
+        light: COLORS.SOFT_PINK,
+        DEFAULT: COLORS.FUCHSIA,
       },
       success: {
         DEFAULT: COLORS.MINT_GREEN,
@@ -52,11 +52,11 @@ module.exports = {
         light: {
           colors: {
             primary: {
-              foreground: COLORS.SOFT_PINK,
-              DEFAULT: COLORS.FUCHSIA,
+              DEFAULT: COLORS.SOFT_PURPLE,
             },
             secondary: {
-              DEFAULT: COLORS.SOFT_PURPLE,
+              foreground: COLORS.SOFT_PINK,
+              DEFAULT: COLORS.FUCHSIA,
             },
             success: {
               DEFAULT: COLORS.MINT_GREEN,

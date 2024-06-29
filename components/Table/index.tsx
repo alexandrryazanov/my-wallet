@@ -40,7 +40,7 @@ const rows = [
     sber: 70,
     alfa: 1550,
     cash: 75,
-    total: 3735,
+    total: (item: any) => "Custom " + item.sber,
   },
 ];
 
@@ -59,6 +59,12 @@ const columns = [
   { label: "TOTAL", key: "total" },
 ];
 
+const renderCell = <T,>(item: T, columnKey: string | number) => {
+  const value = getKeyValue(item, columnKey);
+  if (typeof value === "function") return value(item);
+  return value;
+};
+
 const Table = () => {
   return (
     <NextUITable aria-label="Spendings">
@@ -69,7 +75,7 @@ const Table = () => {
         {(item) => (
           <TableRow key={item.key}>
             {(columnKey) => (
-              <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+              <TableCell>{renderCell(item, columnKey)}</TableCell>
             )}
           </TableRow>
         )}
