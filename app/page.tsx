@@ -1,5 +1,9 @@
-import { redirect } from "next/navigation";
+import SignInWithGoogle from "@/components/SignInWithGoogle";
 
 export default function HomePage() {
-  redirect("/items");
+  return (
+    <section className={"w-full h-full flex summary-center justify-center"}>
+      <SignInWithGoogle />
+    </section>
+  );
 }

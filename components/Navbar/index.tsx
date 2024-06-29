@@ -14,8 +14,14 @@ import { RiMenuFill } from "react-icons/ri";
 import { COLORS } from "@/config/colors";
 import { FiLogIn } from "react-icons/fi";
 import { NAV_ITEMS } from "@/components/Navbar/constants";
+import { getAuth } from "firebase/auth";
 
 export default function NavBar() {
+  const onSignOut = async () => {
+    const auth = getAuth();
+    await auth.signOut();
+  };
+
   return (
     <Navbar maxWidth={"full"} isBordered className={"bg-primary"}>
       <NavbarContent className="hidden sm:flex gap-4" justify="start">
@@ -46,7 +52,12 @@ export default function NavBar() {
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>
-          <Button variant={"light"} isIconOnly className={"text-2xl"}>
+          <Button
+            variant={"light"}
+            isIconOnly
+            className={"text-2xl"}
+            onClick={onSignOut}
+          >
             <FiLogIn color={COLORS.WHITE} />
           </Button>
         </NavbarItem>
