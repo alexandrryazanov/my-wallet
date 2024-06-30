@@ -9,6 +9,14 @@ import { format } from "date-fns";
 import { Select, SelectItem, SelectSection } from "@nextui-org/select";
 import { Selection } from "@nextui-org/table";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
+import { toast } from "react-toastify";
+
+//TODO:
+// - don't add existed wallet name
+// - remove wallet
+// - add coins
+// - remove coins
+// - create summary table
 
 const Wallets = () => {
   const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
@@ -31,9 +39,10 @@ const Wallets = () => {
         { coins: "empty" },
       );
 
-      console.log({ status: "ok" });
+      toast.success("Wallet has been added!");
     } catch (error) {
-      console.log({ message: "Failed to POSTING", error });
+      console.error(error);
+      toast.error("Could not add wallet");
     }
   };
 
@@ -53,14 +62,18 @@ const Wallets = () => {
         if (!snapshot.exists()) return;
 
         const results = snapshot.val();
-        const walletNames = Object.values(results).reduce<string[]>(
-          (acc, { wallets }: any) => [...acc, ...Object.keys(wallets)],
-          [],
-        );
+        const walletNames = [
+          ...new Set(
+            Object.values(results).reduce<string[]>(
+              (acc, { wallets }: any) => [...acc, ...Object.keys(wallets)],
+              [],
+            ),
+          ),
+        ];
 
         setExistedWallets(walletNames.map((name) => ({ name })));
       } catch (error) {
-        console.log(error);
+        toast.error(String(error));
       }
     };
 
@@ -80,9 +93,9 @@ const Wallets = () => {
   return (
     <div className={"h-full"}>
       <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
-        {existedWallets.map((wallet) => (
-          <ListboxItem key={wallet.name}>{wallet.name}</ListboxItem>
-        ))}
+        {/*{existedWallets.map((wallet) => (*/}
+        {/*  <ListboxItem key={wallet.name}>{wallet.name}</ListboxItem>*/}
+        {/*))}*/}
       </Listbox>
 
       <div className={"flex gap-2 flex-wrap"}>
