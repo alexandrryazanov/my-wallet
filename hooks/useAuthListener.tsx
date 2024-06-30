@@ -9,10 +9,7 @@ export default function useAuthListener() {
     const auth = getAuth();
 
     onAuthStateChanged(auth, (user) => {
-      if (user) {
-        router.replace("/summary");
-        localStorage.setItem("uid", user.uid);
-      } else {
+      if (!user) {
         router.replace("/");
         localStorage.removeItem("uid");
       }

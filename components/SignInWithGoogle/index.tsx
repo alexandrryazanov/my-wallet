@@ -4,13 +4,17 @@ import React, { useState } from "react";
 import { Button } from "@nextui-org/button";
 import authWithGoogle from "@/services/auth";
 import { FirebaseError } from "@firebase/util";
+import { useRouter } from "next/navigation";
 
 const SignInWithGoogle = () => {
+  const router = useRouter();
   const [error, setError] = useState("");
 
   const onClick = async () => {
     try {
-      await authWithGoogle();
+      const { user } = await authWithGoogle();
+      router.replace("/summary");
+      localStorage.setItem("uid", user.uid);
     } catch (e) {
       const err = e as FirebaseError;
       setError(err.message);
