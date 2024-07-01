@@ -1,12 +1,12 @@
 import React from "react";
 import Table from "@/components/Table";
-import TestDb from "@/components/TestDb";
+import AddRecordButton from "@/components/AddRecordButton";
 
 export default function SummaryPage() {
   return (
     <section>
-      <TestDb />
       <Table />
+      <AddRecordButton />
     </section>
   );
 }

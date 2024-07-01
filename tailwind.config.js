@@ -12,11 +12,11 @@ module.exports = {
     colors: {
       primary: {
         light: COLORS.LILAC,
-        DEFAULT: COLORS.SOFT_PURPLE,
+        DEFAULT: COLORS.DARK_GRAY,
       },
       secondary: {
         light: COLORS.SOFT_PINK,
-        DEFAULT: COLORS.FUCHSIA,
+        DEFAULT: COLORS.SOFT_PURPLE,
       },
       success: {
         DEFAULT: COLORS.MINT_GREEN,
@@ -52,11 +52,11 @@ module.exports = {
         light: {
           colors: {
             primary: {
-              DEFAULT: COLORS.SOFT_PURPLE,
+              DEFAULT: COLORS.DARK_GRAY,
             },
             secondary: {
               foreground: COLORS.SOFT_PINK,
-              DEFAULT: COLORS.FUCHSIA,
+              DEFAULT: COLORS.SOFT_PURPLE,
             },
             success: {
               DEFAULT: COLORS.MINT_GREEN,
@@ -69,6 +69,9 @@ module.exports = {
             },
             default: {
               DEFAULT: COLORS.WHITE,
+            },
+            background: {
+              DEFAULT: COLORS.BACKGROUND,
             },
           },
         },

@@ -3,7 +3,6 @@
 import React from "react";
 import { Navbar, NavbarContent, NavbarItem } from "@nextui-org/navbar";
 import { Button } from "@nextui-org/button";
-// import Logo from "./logos/lukso_logo.svg";
 import {
   Dropdown,
   DropdownItem,
@@ -23,7 +22,7 @@ export default function NavBar() {
   };
 
   return (
-    <Navbar maxWidth={"full"} isBordered className={"bg-primary"}>
+    <Navbar maxWidth={"full"} isBordered className={"bg-black"}>
       <NavbarContent className="hidden sm:flex gap-4" justify="start">
         <Dropdown>
           <NavbarItem>
@@ -48,7 +47,7 @@ export default function NavBar() {
         </Dropdown>
       </NavbarContent>
       <NavbarContent justify="center">
-        <p className="font-bold text-white">My wallet</p>
+        <p className="font-bold text-white">M Y · W A L L E T</p>
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>

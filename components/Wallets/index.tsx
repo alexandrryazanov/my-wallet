@@ -24,6 +24,7 @@ import { COLORS } from "@/config/colors";
 //TODO:
 // - don't add existed wallet name  - ✅
 // - remove wallet - ✅
+// - date as array (or timestamp of the day start)
 // - add coins
 // - remove coins
 // - create summary table
@@ -32,14 +33,7 @@ const Wallets = () => {
   const [list, setList] = useState<string[]>([]);
   const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
   const [value, setValue] = useState("");
-  const [inputVisible, setInputVisible] = useState(false);
   const [newName, setNewName] = useState("");
-
-  const onWalletSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedValue = e.target.value;
-    setInputVisible(selectedValue === "new");
-    setValue(selectedValue);
-  };
 
   const onAdd = () => {
     const auth = getAuth();
@@ -135,11 +129,12 @@ const Wallets = () => {
   }, []);
 
   return (
-    <div className={"h-full"}>
+    <div className={"mb-4"}>
       <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
         {list.map((walletName) => (
           <ListboxItem
             key={walletName}
+            textValue={walletName}
             className={"flex justify-between w-full"}
           >
             <div className={"w-full justify-between flex items-center"}>
@@ -159,12 +154,12 @@ const Wallets = () => {
 
       <Divider className={"my-8"} />
 
-      <div className={"flex gap-2 flex-wrap"}>
+      <div className={"flex gap-2 flex-no-wrap"}>
         <Select
           placeholder="Select a wallet"
-          className="w-5/12"
+          className="w-10/12"
           value={value}
-          onChange={onWalletSelectChange}
+          onChange={(e) => setValue(e.target.value)}
           aria-label={"Select Wallet"}
         >
           <SelectSection showDivider>
@@ -185,7 +180,7 @@ const Wallets = () => {
             </SelectItem>
           </SelectSection>
         </Select>
-        {inputVisible && (
+        {value === "new" && (
           <Input
             type="name"
             size={"md"}
@@ -193,10 +188,12 @@ const Wallets = () => {
             minLength={2}
             value={newName}
             onValueChange={setNewName}
-            className={"w-4/12"}
+            className={"w-5/12"}
           />
         )}
-        <Button onClick={onAdd}>Add</Button>
+        <Button className={"w-1/5"} onClick={onAdd} disabled={!value}>
+          Add
+        </Button>
       </div>
     </div>
   );
