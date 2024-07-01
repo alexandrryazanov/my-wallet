@@ -3,27 +3,43 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
-import { child, get, getDatabase, ref, set } from "@firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  child,
+  get,
+  getDatabase,
+  onValue,
+  ref,
+  remove,
+  set,
+} from "@firebase/database";
+import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { format } from "date-fns";
 import { Select, SelectItem, SelectSection } from "@nextui-org/select";
-import { Selection } from "@nextui-org/table";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { toast } from "react-toastify";
+import { FaRegTrashCan } from "react-icons/fa6";
+import { Divider } from "@nextui-org/divider";
+import { COLORS } from "@/config/colors";
 
 //TODO:
-// - don't add existed wallet name
-// - remove wallet
+// - don't add existed wallet name  - ✅
+// - remove wallet - ✅
 // - add coins
 // - remove coins
 // - create summary table
 
 const Wallets = () => {
+  const [list, setList] = useState<string[]>([]);
   const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
-  const [value, setValue] = React.useState<Selection>(new Set([]));
+  const [value, setValue] = useState("");
   const [inputVisible, setInputVisible] = useState(false);
+  const [newName, setNewName] = useState("");
 
-  const [name, setName] = useState("");
+  const onWalletSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedValue = e.target.value;
+    setInputVisible(selectedValue === "new");
+    setValue(selectedValue);
+  };
 
   const onAdd = () => {
     const auth = getAuth();
@@ -33,16 +49,40 @@ const Wallets = () => {
 
     try {
       const dbRef = ref(getDatabase());
+      const walletName = (value === "new" ? newName : value).trim();
 
-      set(
-        child(dbRef, `data/${auth.currentUser.uid}/${date}/wallets/${name}`),
-        { coins: "empty" },
-      );
+      if (!walletName.length) return toast.error("Select correct wallet");
+      if (list.includes(walletName))
+        return toast.error("Such wallet already exists");
 
-      toast.success("Wallet has been added!");
+      const walletPath = `data/${auth.currentUser.uid}/${date}/wallets/${walletName}`;
+
+      set(child(dbRef, walletPath), { coins: "empty" });
+
+      toast.success(`Wallet ${walletName} has been added!`);
     } catch (error) {
       console.error(error);
       toast.error("Could not add wallet");
+    }
+  };
+
+  const onRemove = (walletName: string) => {
+    const auth = getAuth();
+    if (!auth.currentUser) return;
+
+    const date = format(new Date(), "dd:MM:yyyy");
+
+    try {
+      const dbRef = ref(getDatabase());
+
+      const walletPath = `data/${auth.currentUser.uid}/${date}/wallets/${walletName}`;
+
+      remove(child(dbRef, walletPath));
+
+      toast.success(`Wallet ${walletName} has been removed!`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not remove wallet");
     }
   };
 
@@ -77,33 +117,54 @@ const Wallets = () => {
       }
     };
 
+    const onWalletsListChangeListener = (user: User) => {
+      const db = getDatabase();
+      const date = format(new Date(), "dd:MM:yyyy");
+      const starCountRef = ref(db, `data/${user.uid}/${date}/wallets`);
+      onValue(starCountRef, (snapshot) => {
+        const data = snapshot.val();
+        setList(Object.keys(data));
+      });
+    };
+
     onAuthStateChanged(auth, (user) => {
       if (!user) return;
       getWallets();
+      onWalletsListChangeListener(user);
     });
   }, []);
-
-  const onSelect = (keys: Selection) => {
-    if (typeof keys === "string") return;
-    setInputVisible(keys.has("new"));
-
-    setValue(keys);
-  };
 
   return (
     <div className={"h-full"}>
       <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
-        {/*{existedWallets.map((wallet) => (*/}
-        {/*  <ListboxItem key={wallet.name}>{wallet.name}</ListboxItem>*/}
-        {/*))}*/}
+        {list.map((walletName) => (
+          <ListboxItem
+            key={walletName}
+            className={"flex justify-between w-full"}
+          >
+            <div className={"w-full justify-between flex items-center"}>
+              <span>🏦 &emsp;{walletName}</span>
+              <Button
+                isIconOnly
+                variant={"light"}
+                className={"hover:border-danger hover:border-1"}
+                onClick={() => onRemove(walletName)}
+              >
+                <FaRegTrashCan color={COLORS.FUCHSIA} />
+              </Button>
+            </div>
+          </ListboxItem>
+        ))}
       </Listbox>
+
+      <Divider className={"my-8"} />
 
       <div className={"flex gap-2 flex-wrap"}>
         <Select
           placeholder="Select a wallet"
           className="w-5/12"
-          selectedKeys={value}
-          onSelectionChange={onSelect}
+          value={value}
+          onChange={onWalletSelectChange}
           aria-label={"Select Wallet"}
         >
           <SelectSection showDivider>
@@ -130,8 +191,8 @@ const Wallets = () => {
             size={"md"}
             placeholder="Enter wallet name"
             minLength={2}
-            value={name}
-            onValueChange={setName}
+            value={newName}
+            onValueChange={setNewName}
             className={"w-4/12"}
           />
         )}
