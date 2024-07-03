@@ -19,27 +19,18 @@ import { toast } from "react-toastify";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { Divider } from "@nextui-org/divider";
 import { COLORS } from "@/config/colors";
-import { Spinner } from "@nextui-org/spinner";
 import { Skeleton } from "@nextui-org/skeleton";
 import { IoAddCircle } from "react-icons/io5";
 
-//TODO:
-// - don't add existed wallet name  - ✅
-// - remove wallet - ✅
-// - date as array (or timestamp of the day start)
-// - add coins
-// - remove coins
-// - create summary table
-
-interface WalletsProps {
+interface CoinsProps {
   timestamp: number;
-  onChange: (walletName: string) => void;
+  walletName: string;
 }
 
-const Wallets = ({ timestamp, onChange }: WalletsProps) => {
+const Coins = ({ timestamp, walletName }: CoinsProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<string[]>([]);
-  const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
+  const [existedCoins, setExistedCoins] = useState<{ name: string }[]>([]);
   const [value, setValue] = useState("");
   const [newName, setNewName] = useState("");
 
@@ -49,47 +40,47 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
     try {
       const dbRef = ref(getDatabase());
-      const walletName = (value === "new" ? newName : value).trim();
+      const coinName = (value === "new" ? newName : value).trim();
 
-      if (!walletName.length) return toast.error("Select correct wallet");
-      if (list.includes(walletName))
-        return toast.error("Such wallet already exists");
+      if (!coinName.length) return toast.error("Select correct coin");
+      if (list.includes(coinName))
+        return toast.error("Such coin already exists");
 
-      const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
+      const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinName}`;
 
-      set(child(dbRef, walletPath), { coins: "empty" });
+      set(child(dbRef, coinPath), { value: 1 });
 
-      toast.success(`Wallet ${walletName} has been added!`);
+      toast.success(`Coin ${coinName} has been added to ${walletName}!`);
     } catch (error) {
       console.error(error);
-      toast.error("Could not add wallet");
+      toast.error("Could not add coin");
     }
   };
 
-  const onRemove = (walletName: string) => {
+  const onRemove = (coinName: string) => {
     const auth = getAuth();
     if (!auth.currentUser) return;
 
     try {
       const dbRef = ref(getDatabase());
 
-      const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
+      const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinName}`;
 
-      remove(child(dbRef, walletPath));
+      remove(child(dbRef, coinPath));
 
-      toast.success(`Wallet ${walletName} has been removed!`);
+      toast.success(`Coin ${coinName} has been removed from ${walletName}!`);
     } catch (error) {
       console.error(error);
-      toast.error("Could not remove wallet");
+      toast.error("Could not remove coin");
     }
   };
 
   useEffect(() => {
-    if (!timestamp) return;
+    if (!timestamp || !walletName) return;
 
     const auth = getAuth();
 
-    const getWallets = async () => {
+    const getCoins = async () => {
       if (!auth.currentUser) return;
 
       try {
@@ -102,7 +93,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
         if (!snapshot.exists()) return;
 
         const results = snapshot.val();
-        const walletNames = [
+        const coinNames = [
           ...new Set(
             Object.values(results).reduce<string[]>(
               (acc, { wallets }: any) => [...acc, ...Object.keys(wallets)],
@@ -111,15 +102,18 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           ),
         ];
 
-        setExistedWallets(walletNames.map((name) => ({ name })));
+        setExistedCoins(coinNames.map((name) => ({ name })));
       } catch (error) {
         toast.error(String(error));
       }
     };
 
-    const onWalletsListChangeListener = (user: User) => {
+    const onCoinsListChangeListener = (user: User) => {
       const db = getDatabase();
-      const starCountRef = ref(db, `data/${user.uid}/${timestamp}/wallets`);
+      const starCountRef = ref(
+        db,
+        `data/${user.uid}/${timestamp}/wallets/${walletName}`,
+      );
 
       onValue(starCountRef, (snapshot) => {
         setList(Object.keys(snapshot.val() || {}));
@@ -129,10 +123,10 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
     onAuthStateChanged(auth, (user) => {
       if (!user) return;
-      getWallets();
-      onWalletsListChangeListener(user);
+      getCoins();
+      onCoinsListChangeListener(user);
     });
-  }, [timestamp]);
+  }, [timestamp, walletName]);
 
   return (
     <div className={"mb-4"}>
@@ -149,20 +143,20 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           </Skeleton>
         </div>
       ) : (
-        <Listbox aria-label="Wallets" onAction={(key) => onChange(String(key))}>
-          {list.map((walletName) => (
+        <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
+          {list.map((name) => (
             <ListboxItem
-              key={walletName}
-              textValue={walletName}
+              key={name}
+              textValue={name}
               className={"flex justify-between w-full"}
             >
               <div className={"w-full justify-between flex items-center"}>
-                <span>🏦 &emsp;{walletName}</span>
+                <span>🪙 &emsp;{name}</span>
                 <Button
                   isIconOnly
                   variant={"light"}
                   className={"hover:border-danger hover:border-1"}
-                  onClick={() => onRemove(walletName)}
+                  onClick={() => onRemove(name)}
                 >
                   <FaRegTrashCan color={COLORS.FUCHSIA} />
                 </Button>
@@ -174,29 +168,29 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
       <Divider className={"my-8"} />
 
-      <div className={"flex gap-2 flex-no-wrap px-2"}>
+      <div className={"flex gap-2 flex-no-wrap"}>
         <Select
-          placeholder="Select a wallet"
+          placeholder="Select a coin"
           className="w-full"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          aria-label={"Select Wallet"}
+          aria-label={"Select coin"}
         >
           <SelectSection showDivider>
-            {existedWallets.map((wallet) => (
+            {existedCoins.map((coin) => (
               <SelectItem
-                key={wallet.name}
-                textValue={wallet.name}
-                aria-label={wallet.name}
+                key={coin.name}
+                textValue={coin.name}
+                aria-label={coin.name}
               >
-                {wallet.name}
+                {coin.name}
               </SelectItem>
             ))}
           </SelectSection>
 
           <SelectSection>
             <SelectItem key={"new"} textValue={"Enter name..."}>
-              Create a new wallet
+              Add a new coin
             </SelectItem>
           </SelectSection>
         </Select>
@@ -204,7 +198,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           <Input
             type="name"
             size={"md"}
-            placeholder="Enter name"
+            placeholder="Enter coin symbol"
             minLength={2}
             value={newName}
             onValueChange={setNewName}
@@ -225,4 +219,4 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
   );
 };
 
-export default Wallets;
+export default Coins;
