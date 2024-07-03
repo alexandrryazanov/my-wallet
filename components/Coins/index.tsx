@@ -40,7 +40,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
 
     try {
       const dbRef = ref(getDatabase());
-      const coinName = (value === "new" ? newName : value).trim();
+      const coinName = (value === "new" ? newName : value).trim().toUpperCase();
 
       if (!coinName.length) return toast.error("Select correct coin");
       if (list.includes(coinName))
@@ -189,7 +189,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
           </SelectSection>
 
           <SelectSection>
-            <SelectItem key={"new"} textValue={"Enter name..."}>
+            <SelectItem key={"new"} textValue={"Enter coin name..."}>
               Add a new coin
             </SelectItem>
           </SelectSection>

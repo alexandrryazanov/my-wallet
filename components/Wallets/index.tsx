@@ -19,7 +19,6 @@ import { toast } from "react-toastify";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { Divider } from "@nextui-org/divider";
 import { COLORS } from "@/config/colors";
-import { Spinner } from "@nextui-org/spinner";
 import { Skeleton } from "@nextui-org/skeleton";
 import { IoAddCircle } from "react-icons/io5";
 
@@ -57,7 +56,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
       const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
 
-      set(child(dbRef, walletPath), { coins: "empty" });
+      set(child(dbRef, walletPath), "");
 
       toast.success(`Wallet ${walletName} has been added!`);
     } catch (error) {
