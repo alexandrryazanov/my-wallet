@@ -11,7 +11,10 @@ const AddRecordButton = () => {
 
   return (
     <div className={"w-full flex justify-center my-6"}>
-      <Button color={"primary"} onClick={() => router.push("/add")}>
+      <Button
+        color={"primary"}
+        onClick={() => router.push(`/record/${new Date().getTime()}`)}
+      >
         <IoAddCircle size={20} color={COLORS.MINT_GREEN} className={"mr-1"} />{" "}
         Add record
       </Button>

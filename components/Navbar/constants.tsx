@@ -1,4 +1,3 @@
-import { RiNftFill } from "react-icons/ri";
 import React from "react";
 import { COLORS } from "@/config/colors";
 import { IoAddCircle } from "react-icons/io5";
@@ -13,7 +12,7 @@ export const NAV_ITEMS = [
   },
   {
     title: "Add record",
-    path: "/add",
+    path: `/record/${new Date().getTime()}`,
     icon: <IoAddCircle size={24} color={COLORS.MINT_GREEN} />,
     description: "Add a new record to wallets",
   },

@@ -13,13 +13,14 @@ import {
   set,
 } from "@firebase/database";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { format } from "date-fns";
 import { Select, SelectItem, SelectSection } from "@nextui-org/select";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { toast } from "react-toastify";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { Divider } from "@nextui-org/divider";
 import { COLORS } from "@/config/colors";
+import { Spinner } from "@nextui-org/spinner";
+import { Skeleton } from "@nextui-org/skeleton";
 
 //TODO:
 // - don't add existed wallet name  - ✅
@@ -29,7 +30,12 @@ import { COLORS } from "@/config/colors";
 // - remove coins
 // - create summary table
 
-const Wallets = () => {
+interface WalletsProps {
+  timestamp: string;
+}
+
+const Wallets = ({ timestamp }: WalletsProps) => {
+  const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<string[]>([]);
   const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
   const [value, setValue] = useState("");
@@ -39,8 +45,6 @@ const Wallets = () => {
     const auth = getAuth();
     if (!auth.currentUser) return;
 
-    const date = format(new Date(), "dd:MM:yyyy");
-
     try {
       const dbRef = ref(getDatabase());
       const walletName = (value === "new" ? newName : value).trim();
@@ -49,7 +53,7 @@ const Wallets = () => {
       if (list.includes(walletName))
         return toast.error("Such wallet already exists");
 
-      const walletPath = `data/${auth.currentUser.uid}/${date}/wallets/${walletName}`;
+      const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
 
       set(child(dbRef, walletPath), { coins: "empty" });
 
@@ -64,12 +68,10 @@ const Wallets = () => {
     const auth = getAuth();
     if (!auth.currentUser) return;
 
-    const date = format(new Date(), "dd:MM:yyyy");
-
     try {
       const dbRef = ref(getDatabase());
 
-      const walletPath = `data/${auth.currentUser.uid}/${date}/wallets/${walletName}`;
+      const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
 
       remove(child(dbRef, walletPath));
 
@@ -81,6 +83,8 @@ const Wallets = () => {
   };
 
   useEffect(() => {
+    if (!timestamp) return;
+
     const auth = getAuth();
 
     const getWallets = async () => {
@@ -113,11 +117,11 @@ const Wallets = () => {
 
     const onWalletsListChangeListener = (user: User) => {
       const db = getDatabase();
-      const date = format(new Date(), "dd:MM:yyyy");
-      const starCountRef = ref(db, `data/${user.uid}/${date}/wallets`);
+      const starCountRef = ref(db, `data/${user.uid}/${timestamp}/wallets`);
+
       onValue(starCountRef, (snapshot) => {
-        const data = snapshot.val();
-        setList(Object.keys(data));
+        setList(Object.keys(snapshot.val() || {}));
+        setIsLoading(false);
       });
     };
 
@@ -126,31 +130,45 @@ const Wallets = () => {
       getWallets();
       onWalletsListChangeListener(user);
     });
-  }, []);
+  }, [timestamp]);
 
   return (
     <div className={"mb-4"}>
-      <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
-        {list.map((walletName) => (
-          <ListboxItem
-            key={walletName}
-            textValue={walletName}
-            className={"flex justify-between w-full"}
-          >
-            <div className={"w-full justify-between flex items-center"}>
-              <span>🏦 &emsp;{walletName}</span>
-              <Button
-                isIconOnly
-                variant={"light"}
-                className={"hover:border-danger hover:border-1"}
-                onClick={() => onRemove(walletName)}
-              >
-                <FaRegTrashCan color={COLORS.FUCHSIA} />
-              </Button>
-            </div>
-          </ListboxItem>
-        ))}
-      </Listbox>
+      {isLoading ? (
+        <div className={"flex flex-col gap-6 p-4 mt-2"}>
+          <Skeleton className="w-3/5 rounded-lg">
+            <div className="h-4 w-3/5 rounded-lg bg-default-200" />
+          </Skeleton>
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-4 w-4/5 rounded-lg bg-default-200" />
+          </Skeleton>
+          <Skeleton className="w-2/5 rounded-lg">
+            <div className="h-4 w-2/5 rounded-lg bg-default-300" />
+          </Skeleton>
+        </div>
+      ) : (
+        <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
+          {list.map((walletName) => (
+            <ListboxItem
+              key={walletName}
+              textValue={walletName}
+              className={"flex justify-between w-full"}
+            >
+              <div className={"w-full justify-between flex items-center"}>
+                <span>🏦 &emsp;{walletName}</span>
+                <Button
+                  isIconOnly
+                  variant={"light"}
+                  className={"hover:border-danger hover:border-1"}
+                  onClick={() => onRemove(walletName)}
+                >
+                  <FaRegTrashCan color={COLORS.FUCHSIA} />
+                </Button>
+              </div>
+            </ListboxItem>
+          ))}
+        </Listbox>
+      )}
 
       <Divider className={"my-8"} />
 
