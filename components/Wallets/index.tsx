@@ -156,6 +156,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           aria-label="Wallets"
           onAction={(key) => onChange(String(key))}
           className={"bg-white p-4 rounded-2xl shadow-md"}
+          selectionMode={"single"}
         >
           {list.map((walletName) => (
             <ListboxItem

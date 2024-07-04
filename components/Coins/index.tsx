@@ -138,6 +138,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       );
 
       onValue(walletRef, async (snapshot) => {
+        setIsLoading(true);
         const rates =
           (
             await get(child(ref(db), `data/${user.uid}/${timestamp}/rates`))
@@ -164,15 +165,18 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
   return (
     <div className={"mb-4 flex flex-col gap-4"}>
       {isLoading ? (
-        <div className={"flex flex-col gap-6 p-4 mt-2"}>
-          <Skeleton className="w-3/5 rounded-lg">
-            <div className="h-4 w-3/5 rounded-lg bg-default-200" />
+        <div className={"flex flex-col gap-8 p-4 mt-0"}>
+          <Skeleton className="w-full rounded-lg">
+            <div className="h-9 w-3/5 rounded-lg bg-default-200" />
           </Skeleton>
           <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-4 w-4/5 rounded-lg bg-default-200" />
+            <div className="h-5 w-4/5 rounded-lg bg-default-200" />
           </Skeleton>
-          <Skeleton className="w-2/5 rounded-lg">
-            <div className="h-4 w-2/5 rounded-lg bg-default-300" />
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-5 w-4/5 rounded-lg bg-default-300" />
+          </Skeleton>
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-5 w-4/5 rounded-lg bg-default-300" />
           </Skeleton>
         </div>
       ) : (
