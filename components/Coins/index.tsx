@@ -28,6 +28,7 @@ import {
   TableRow,
 } from "@nextui-org/table";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { AiOutlineCloudDownload } from "react-icons/ai";
 
 interface CoinsProps {
   timestamp: number;
@@ -149,6 +150,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
             symbol,
             amount,
             rate: rates[symbol] || 1,
+            total: Math.ceil((rates[symbol] || 1) * amount),
           })),
         );
         setIsLoading(false);
@@ -161,6 +163,30 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       onCoinsListChangeListener(user);
     });
   }, [timestamp, walletName]);
+
+  const loadRateFromCoinbase = async () => {
+    const coinSymbol = (
+      addingCoin.listValue === "new"
+        ? addingCoin.newValue
+        : addingCoin.listValue
+    )
+      .trim()
+      .toUpperCase();
+
+    if (!coinSymbol) return;
+
+    try {
+      const response = await fetch(
+        `https://api.coinbase.com/v2/prices/${coinSymbol}-RUB/buy`,
+      );
+
+      const responseJson = await response.json();
+      const rate = Math.ceil(Number(responseJson.data.amount));
+      setAddingCoin((p) => ({ ...p, rate }));
+    } catch (e) {
+      setAddingCoin((p) => ({ ...p, rate: 0 }));
+    }
+  };
 
   return (
     <div className={"mb-4 flex flex-col gap-4"}>
@@ -186,6 +212,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
               { key: "symbol", label: "Symbol" },
               { key: "amount", label: "Amount" },
               { key: "rate", label: "Rate" } as const,
+              { key: "total", label: "Total", align: "end" } as const,
               { key: "actions", label: "Actions", align: "end" } as const,
             ]}
           >
@@ -288,6 +315,13 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
             setAddingCoin((p) => ({ ...p, rate: +rate }))
           }
           className={"w-5/12"}
+          endContent={
+            <AiOutlineCloudDownload
+              size={32}
+              className={"cursor-pointer pt-3 ml-2"}
+              onClick={loadRateFromCoinbase}
+            />
+          }
         />
         <Button
           size={"lg"}
