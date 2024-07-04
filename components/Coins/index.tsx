@@ -29,28 +29,41 @@ interface CoinsProps {
 
 const Coins = ({ timestamp, walletName }: CoinsProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [list, setList] = useState<string[]>([]);
+  const [list, setList] = useState<{ symbol: string; amount: number }[]>([]);
   const [existedCoins, setExistedCoins] = useState<{ name: string }[]>([]);
-  const [value, setValue] = useState("");
-  const [newName, setNewName] = useState("");
+  const [addingCoin, setAddingCoin] = useState<{
+    listValue: string;
+    newValue: string;
+    amount: number;
+    rate: number;
+  }>({ listValue: "", newValue: "", amount: 0, rate: 0 });
 
-  const onAdd = () => {
+  const onAdd = async () => {
     const auth = getAuth();
     if (!auth.currentUser) return;
 
     try {
       const dbRef = ref(getDatabase());
-      const coinName = (value === "new" ? newName : value).trim().toUpperCase();
+      const coinSymbol = (
+        addingCoin.listValue === "new"
+          ? addingCoin.newValue
+          : addingCoin.listValue
+      )
+        .trim()
+        .toUpperCase();
 
-      if (!coinName.length) return toast.error("Select correct coin");
-      if (list.includes(coinName))
+      if (!coinSymbol.length) return toast.error("Select correct coin");
+      if (list.find((coin) => coin.symbol === coinSymbol)) {
         return toast.error("Such coin already exists");
+      }
 
-      const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinName}`;
+      const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinSymbol}`;
+      const coinRatePath = `data/${auth.currentUser.uid}/${timestamp}/rates/${coinSymbol}`;
 
-      set(child(dbRef, coinPath), { value: 1 });
+      await set(child(dbRef, coinPath), addingCoin.amount);
+      await set(child(dbRef, coinRatePath), addingCoin.rate);
 
-      toast.success(`Coin ${coinName} has been added to ${walletName}!`);
+      toast.success(`Coin ${coinSymbol} has been added to ${walletName}!`);
     } catch (error) {
       console.error(error);
       toast.error("Could not add coin");
@@ -116,7 +129,12 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       );
 
       onValue(starCountRef, (snapshot) => {
-        setList(Object.keys(snapshot.val() || {}));
+        setList(
+          Object.entries<any>(snapshot.val() || {}).map(([symbol, amount]) => ({
+            symbol,
+            amount,
+          })),
+        );
         setIsLoading(false);
       });
     };
@@ -144,19 +162,21 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
         </div>
       ) : (
         <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
-          {list.map((name) => (
+          {list.map((coin) => (
             <ListboxItem
-              key={name}
-              textValue={name}
+              key={coin.symbol}
+              textValue={coin.symbol}
               className={"flex justify-between w-full"}
             >
               <div className={"w-full justify-between flex items-center"}>
-                <span>🪙 &emsp;{name}</span>
+                <span>
+                  🪙 &emsp;{coin.symbol} ({coin.amount})
+                </span>
                 <Button
                   isIconOnly
                   variant={"light"}
                   className={"hover:border-danger hover:border-1"}
-                  onClick={() => onRemove(name)}
+                  onClick={() => onRemove(coin.symbol)}
                 >
                   <FaRegTrashCan color={COLORS.FUCHSIA} />
                 </Button>
@@ -168,12 +188,15 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
 
       <Divider className={"my-8"} />
 
-      <div className={"flex gap-2 flex-no-wrap"}>
+      <div className={"flex gap-2 flex-no-wrap items-center"}>
         <Select
+          label={"Coin"}
           placeholder="Select a coin"
           className="w-full"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
+          value={addingCoin.listValue}
+          onChange={(e) =>
+            setAddingCoin((p) => ({ ...p, listValue: e.target.value }))
+          }
           aria-label={"Select coin"}
         >
           <SelectSection showDivider>
@@ -189,30 +212,55 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
           </SelectSection>
 
           <SelectSection>
-            <SelectItem key={"new"} textValue={"Enter coin name..."}>
+            <SelectItem key={"new"} textValue={"Enter coin symbol..."}>
               Add a new coin
             </SelectItem>
           </SelectSection>
         </Select>
-        {value === "new" && (
+        {addingCoin.listValue === "new" && (
           <Input
-            type="name"
+            label={"New coin"}
+            type="text"
             size={"md"}
-            placeholder="Enter coin symbol"
+            placeholder="Symbol"
             minLength={2}
-            value={newName}
-            onValueChange={setNewName}
+            value={addingCoin.newValue}
+            onValueChange={(symbol) =>
+              setAddingCoin((p) => ({ ...p, newValue: symbol }))
+            }
             className={"w-5/12"}
           />
         )}
+        <Input
+          label={"Amount"}
+          type="number"
+          size={"md"}
+          placeholder="Amount"
+          value={String(addingCoin.amount)}
+          onValueChange={(amount) =>
+            setAddingCoin((p) => ({ ...p, amount: +amount }))
+          }
+          className={"w-5/12"}
+        />
+        <Input
+          label={"Rate"}
+          type="number"
+          size={"md"}
+          placeholder="Rate"
+          value={String(addingCoin.rate)}
+          onValueChange={(rate) =>
+            setAddingCoin((p) => ({ ...p, rate: +rate }))
+          }
+          className={"w-5/12"}
+        />
         <Button
+          size={"lg"}
           onClick={onAdd}
-          disabled={!value}
+          disabled={!addingCoin.listValue}
           color={"primary"}
-          className={"min-w-5 px-1"}
           variant={"light"}
         >
-          <IoAddCircle size={36} color={COLORS.MINT_GREEN} />
+          <IoAddCircle size={28} color={COLORS.MINT_GREEN} />
         </Button>
       </div>
     </div>
