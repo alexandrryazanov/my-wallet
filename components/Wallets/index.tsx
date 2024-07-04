@@ -134,9 +134,13 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
   }, [timestamp]);
 
   return (
-    <div className={"mb-4"}>
+    <div className={"mb-4 flex flex-col gap-4"}>
       {isLoading ? (
-        <div className={"flex flex-col gap-6 p-4 mt-2"}>
+        <div
+          className={
+            "flex flex-col gap-6 p-4 mt-2 bg-white rounded-2xl shadow-md"
+          }
+        >
           <Skeleton className="w-3/5 rounded-lg">
             <div className="h-4 w-3/5 rounded-lg bg-default-200" />
           </Skeleton>
@@ -148,7 +152,11 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           </Skeleton>
         </div>
       ) : (
-        <Listbox aria-label="Wallets" onAction={(key) => onChange(String(key))}>
+        <Listbox
+          aria-label="Wallets"
+          onAction={(key) => onChange(String(key))}
+          className={"bg-white p-4 rounded-2xl shadow-md"}
+        >
           {list.map((walletName) => (
             <ListboxItem
               key={walletName}
@@ -171,10 +179,13 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
         </Listbox>
       )}
 
-      <Divider className={"my-8"} />
-
-      <div className={"flex gap-2 flex-no-wrap px-2"}>
+      <div
+        className={
+          "flex gap-2 flex-no-wrap bg-white p-4 rounded-2xl shadow-md items-center"
+        }
+      >
         <Select
+          label={"Wallet"}
           placeholder="Select a wallet"
           className="w-full"
           value={value}
@@ -201,6 +212,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
         </Select>
         {value === "new" && (
           <Input
+            label={"New wallet"}
             type="name"
             size={"md"}
             placeholder="Enter name"

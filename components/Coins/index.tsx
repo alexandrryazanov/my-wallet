@@ -14,13 +14,20 @@ import {
 } from "@firebase/database";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { Select, SelectItem, SelectSection } from "@nextui-org/select";
-import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { toast } from "react-toastify";
-import { FaRegTrashCan } from "react-icons/fa6";
-import { Divider } from "@nextui-org/divider";
 import { COLORS } from "@/config/colors";
 import { Skeleton } from "@nextui-org/skeleton";
 import { IoAddCircle } from "react-icons/io5";
+import {
+  getKeyValue,
+  Table as NextUITable,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
+} from "@nextui-org/table";
+import { FaRegTrashCan } from "react-icons/fa6";
 
 interface CoinsProps {
   timestamp: number;
@@ -29,7 +36,10 @@ interface CoinsProps {
 
 const Coins = ({ timestamp, walletName }: CoinsProps) => {
   const [isLoading, setIsLoading] = useState(true);
-  const [list, setList] = useState<{ symbol: string; amount: number }[]>([]);
+  const [list, setList] = useState<
+    { symbol: string; amount: number; rate: number }[]
+  >([]);
+  const [rates, setRates] = useState<Record<string, number>>({});
   const [existedCoins, setExistedCoins] = useState<{ name: string }[]>([]);
   const [addingCoin, setAddingCoin] = useState<{
     listValue: string;
@@ -109,7 +119,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
         const coinNames = [
           ...new Set(
             Object.values(results).reduce<string[]>(
-              (acc, { wallets }: any) => [...acc, ...Object.keys(wallets)],
+              (acc, { rates }: any) => [...acc, ...Object.keys(rates)],
               [],
             ),
           ),
@@ -123,18 +133,29 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
 
     const onCoinsListChangeListener = (user: User) => {
       const db = getDatabase();
-      const starCountRef = ref(
+      const walletRef = ref(
         db,
         `data/${user.uid}/${timestamp}/wallets/${walletName}`,
       );
 
-      onValue(starCountRef, (snapshot) => {
+      onValue(walletRef, (snapshot) => {
         setList(
           Object.entries<any>(snapshot.val() || {}).map(([symbol, amount]) => ({
             symbol,
             amount,
+            rate: rates[symbol] || 1,
           })),
         );
+        setIsLoading(false);
+      });
+    };
+
+    const onRatesListChangeListener = (user: User) => {
+      const db = getDatabase();
+      const ratesRef = ref(db, `data/${user.uid}/${timestamp}/rates`);
+
+      onValue(ratesRef, (snapshot) => {
+        setRates(snapshot.val() || {});
         setIsLoading(false);
       });
     };
@@ -143,11 +164,12 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       if (!user) return;
       getCoins();
       onCoinsListChangeListener(user);
+      onRatesListChangeListener(user);
     });
   }, [timestamp, walletName]);
 
   return (
-    <div className={"mb-4"}>
+    <div className={"mb-4 flex flex-col gap-4"}>
       {isLoading ? (
         <div className={"flex flex-col gap-6 p-4 mt-2"}>
           <Skeleton className="w-3/5 rounded-lg">
@@ -161,34 +183,51 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
           </Skeleton>
         </div>
       ) : (
-        <Listbox aria-label="Wallets" onAction={(key) => alert(key)}>
-          {list.map((coin) => (
-            <ListboxItem
-              key={coin.symbol}
-              textValue={coin.symbol}
-              className={"flex justify-between w-full"}
-            >
-              <div className={"w-full justify-between flex items-center"}>
-                <span>
-                  🪙 &emsp;{coin.symbol} ({coin.amount})
-                </span>
-                <Button
-                  isIconOnly
-                  variant={"light"}
-                  className={"hover:border-danger hover:border-1"}
-                  onClick={() => onRemove(coin.symbol)}
-                >
-                  <FaRegTrashCan color={COLORS.FUCHSIA} />
-                </Button>
-              </div>
-            </ListboxItem>
-          ))}
-        </Listbox>
+        <NextUITable aria-label="Spendings">
+          <TableHeader
+            columns={[
+              { key: "symbol", label: "Symbol" },
+              { key: "amount", label: "Amount" },
+              { key: "rate", label: "Rate" } as const,
+              { key: "actions", label: "Actions", align: "end" } as const,
+            ]}
+          >
+            {(column) => (
+              <TableColumn key={column.key} align={column.align}>
+                {column.label}
+              </TableColumn>
+            )}
+          </TableHeader>
+          <TableBody items={list} emptyContent={"No coins"}>
+            {(item) => (
+              <TableRow key={item.symbol}>
+                {(columnKey) => (
+                  <TableCell>
+                    {columnKey === "actions" ? (
+                      <Button
+                        isIconOnly
+                        variant={"light"}
+                        className={"hover:border-danger hover:border-1"}
+                        onClick={() => onRemove(item.symbol)}
+                      >
+                        <FaRegTrashCan color={COLORS.FUCHSIA} />
+                      </Button>
+                    ) : (
+                      getKeyValue(item, columnKey)
+                    )}
+                  </TableCell>
+                )}
+              </TableRow>
+            )}
+          </TableBody>
+        </NextUITable>
       )}
 
-      <Divider className={"my-8"} />
-
-      <div className={"flex gap-2 flex-no-wrap items-center"}>
+      <div
+        className={
+          "flex gap-2 flex-no-wrap items-center bg-white p-4 rounded-2xl shadow-md"
+        }
+      >
         <Select
           label={"Coin"}
           placeholder="Select a coin"

@@ -18,21 +18,13 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
         <h2 className={"mb-2"}>
           Wallets on {format(new Date(timestamp), "dd.MM.yyyy")}
         </h2>
-        <div className={"bg-white p-4 rounded-md shadow-md ]"}>
-          <Wallets timestamp={timestamp} onChange={setWalletName} />
-        </div>
+        <Wallets timestamp={timestamp} onChange={setWalletName} />
       </section>
 
       {walletName && (
         <section className={"w-full min-w-[500px min-h-2"}>
           <h2 className={"mb-2"}>Coins of {walletName}</h2>
-          <div
-            className={
-              "bg-white min-h-40 p-4 rounded-md shadow-md min-w-[500px]"
-            }
-          >
-            <Coins timestamp={timestamp} walletName={walletName} />
-          </div>
+          <Coins timestamp={timestamp} walletName={walletName} />
         </section>
       )}
     </div>
