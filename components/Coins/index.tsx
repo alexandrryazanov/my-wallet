@@ -39,7 +39,6 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
   const [list, setList] = useState<
     { symbol: string; amount: number; rate: number }[]
   >([]);
-  const [rates, setRates] = useState<Record<string, number>>({});
   const [existedCoins, setExistedCoins] = useState<{ name: string }[]>([]);
   const [addingCoin, setAddingCoin] = useState<{
     listValue: string;
@@ -70,8 +69,8 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinSymbol}`;
       const coinRatePath = `data/${auth.currentUser.uid}/${timestamp}/rates/${coinSymbol}`;
 
-      await set(child(dbRef, coinPath), addingCoin.amount);
       await set(child(dbRef, coinRatePath), addingCoin.rate);
+      await set(child(dbRef, coinPath), addingCoin.amount);
 
       toast.success(`Coin ${coinSymbol} has been added to ${walletName}!`);
     } catch (error) {
@@ -138,7 +137,12 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
         `data/${user.uid}/${timestamp}/wallets/${walletName}`,
       );
 
-      onValue(walletRef, (snapshot) => {
+      onValue(walletRef, async (snapshot) => {
+        const rates =
+          (
+            await get(child(ref(db), `data/${user.uid}/${timestamp}/rates`))
+          ).val() || {};
+
         setList(
           Object.entries<any>(snapshot.val() || {}).map(([symbol, amount]) => ({
             symbol,
@@ -150,21 +154,10 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       });
     };
 
-    const onRatesListChangeListener = (user: User) => {
-      const db = getDatabase();
-      const ratesRef = ref(db, `data/${user.uid}/${timestamp}/rates`);
-
-      onValue(ratesRef, (snapshot) => {
-        setRates(snapshot.val() || {});
-        setIsLoading(false);
-      });
-    };
-
     onAuthStateChanged(auth, (user) => {
       if (!user) return;
       getCoins();
       onCoinsListChangeListener(user);
-      onRatesListChangeListener(user);
     });
   }, [timestamp, walletName]);
 
