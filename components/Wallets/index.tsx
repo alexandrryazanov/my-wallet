@@ -136,6 +136,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           onAction={(key) => onChange(String(key))}
           className={"bg-white p-4 rounded-2xl shadow-md"}
           selectionMode={"single"}
+          emptyContent={"No wallets yet"}
         >
           {list.map((walletName) => (
             <ListboxItem

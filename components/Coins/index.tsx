@@ -185,7 +185,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
       );
 
       const responseJson = await response.json();
-      const rate = Math.ceil(Number(responseJson.data.amount));
+      const rate = +Number(responseJson.data.amount).toFixed(2);
       setAddingCoin((p) => ({ ...p, rate }));
     } catch (e) {
       setAddingCoin((p) => ({ ...p, rate: 0 }));

@@ -9,9 +9,11 @@
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
 	},
 	"dependencies": {
+		"@internationalized/date": "^3.5.4",
 		"@nextui-org/button": "2.0.33",
 		"@nextui-org/card": "^2.0.30",
 		"@nextui-org/code": "2.0.28",
+		"@nextui-org/date-input": "^2.1.1",
 		"@nextui-org/dropdown": "^2.1.25",
 		"@nextui-org/image": "^2.0.28",
 		"@nextui-org/input": "^2.2.2",
@@ -26,6 +28,7 @@
 		"@nextui-org/system": "2.2.1",
 		"@nextui-org/table": "^2.0.36",
 		"@nextui-org/theme": "2.2.5",
+		"@react-aria/i18n": "^3.11.1",
 		"@react-aria/ssr": "3.9.4",
 		"@react-aria/visually-hidden": "3.8.12",
 		"@types/node": "20.5.7",
