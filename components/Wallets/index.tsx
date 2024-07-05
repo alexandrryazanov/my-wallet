@@ -166,7 +166,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
         }
       >
         <Select
-          label={"Wallet"}
+          label={"Add Wallet"}
           placeholder="Select a wallet"
           className="w-full"
           value={value}

@@ -3,8 +3,8 @@ export interface FirebaseStructure {
 }
 
 export interface UserDataOnDate {
-  wallets: Wallets;
-  rates: Rates;
+  wallets?: Wallets;
+  rates?: Rates;
 }
 
 export type UserUID = string;

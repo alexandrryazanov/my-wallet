@@ -14,14 +14,20 @@ import { getDatabase, onValue, ref, Unsubscribe } from "@firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAllWalletNames, getTableData } from "@/services/firebase";
 import { Spinner } from "@nextui-org/spinner";
+import clsx from "clsx";
+import { useRouter } from "next/navigation";
+import { formatValue } from "@/services/calc";
 
 const renderCell = <T,>(item: T, columnKey: string | number) => {
   const value = getKeyValue(item, columnKey);
-  if (typeof value === "function") return value(item);
+  if (!value) return "-";
+  if (typeof value === "number") return formatValue(value);
   return value;
 };
 
 const SummaryTable = () => {
+  const router = useRouter();
+
   const [rows, setRows] = useState<Record<string, string | number>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [columnNames, setColumnNames] = useState<string[]>([]);
@@ -65,7 +71,11 @@ const SummaryTable = () => {
     );
 
   return (
-    <NextUITable aria-label="Spendings">
+    <NextUITable
+      aria-label="Spendings"
+      selectionMode="single"
+      onRowAction={(key) => router.push(`/record/${key}`)}
+    >
       <TableHeader columns={columnsWithService}>
         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
       </TableHeader>
@@ -73,7 +83,9 @@ const SummaryTable = () => {
         {(item) => (
           <TableRow key={item.key}>
             {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey)}</TableCell>
+              <TableCell className={clsx(columnKey === "total" && "font-bold")}>
+                {renderCell(item, columnKey)}
+              </TableCell>
             )}
           </TableRow>
         )}

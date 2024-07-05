@@ -262,7 +262,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
         }
       >
         <Select
-          label={"Coin"}
+          label={"Add Coin"}
           placeholder="Select a coin"
           className="w-full"
           value={addingCoin.listValue}

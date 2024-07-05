@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { DataSnapshot } from "@firebase/database";
 import { toast } from "react-toastify";
-import { UserData } from "@/types/firebase";
+import { UserData, UserDataOnDate } from "@/types/firebase";
 import { format } from "date-fns";
 import { calcWalletValues } from "@/services/calc";
 
@@ -22,16 +22,21 @@ export function getAllWalletNames(userSnapshot: DataSnapshot) {
   try {
     if (!userSnapshot.exists()) return [];
 
+    const userData = userSnapshot.val() as UserData;
+
     return [
       ...new Set(
-        Object.values(userSnapshot.val()).reduce<string[]>(
-          (acc, { wallets }: any) => [...acc, ...Object.keys(wallets)],
+        Object.values(userData).reduce<string[]>(
+          (acc, userDataOnDate: UserDataOnDate) => [
+            ...acc,
+            ...Object.keys(userDataOnDate?.wallets || {}),
+          ],
           [],
         ),
       ),
     ];
   } catch (error) {
-    toast.error(String(error));
+    toast.error("Error when getting wallets\n" + String(error));
     return [];
   }
 }
@@ -46,10 +51,10 @@ export function getTableData(
     return Object.entries(userData).map(([timestamp, { wallets, rates }]) => ({
       key: timestamp,
       date: format(new Date(+timestamp), "dd.MM.yyyy"),
-      ...calcWalletValues(wallets, rates),
+      ...calcWalletValues(wallets || {}, rates || {}),
     }));
   } catch (error) {
-    toast.error(String(error));
+    toast.error("Error when getting wallets data\n" + String(error));
     return [];
   }
 }
