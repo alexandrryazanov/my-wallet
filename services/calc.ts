@@ -25,7 +25,7 @@ export function calcWalletValues(wallets: Wallets, rates: Rates) {
 
 export const formatValue = (x: number, full?: boolean) => {
   const [int] = x.toString().split(".");
-  if (int.length <= 3 || full) return x.toLocaleString().replaceAll(",", " ");
+  if (int.length <= 3 || full) return x.toLocaleString();
   if (int.length > 12) return "999B+";
   if (int.length > 9) return +(+int / 10 ** 9).toFixed(3) + "B";
   if (int.length > 6) return +(+int / 10 ** 6).toFixed(2) + "M";

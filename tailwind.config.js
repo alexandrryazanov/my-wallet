@@ -51,6 +51,7 @@ module.exports = {
       themes: {
         light: {
           colors: {
+            foreground: COLORS.MID_GRAY,
             primary: {
               DEFAULT: COLORS.DARK_GRAY,
             },
@@ -68,7 +69,7 @@ module.exports = {
               DEFAULT: COLORS.FUCHSIA,
             },
             default: {
-              DEFAULT: COLORS.WHITE,
+              DEFAULT: COLORS.SOFT_GRAY,
             },
             background: {
               DEFAULT: COLORS.BACKGROUND,

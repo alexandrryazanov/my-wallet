@@ -14,6 +14,7 @@ import { COLORS } from "@/config/colors";
 import { FiLogIn } from "react-icons/fi";
 import { NAV_ITEMS } from "@/components/Navbar/constants";
 import { getAuth } from "firebase/auth";
+import Link from "next/link";
 
 export default function NavBar() {
   const onSignOut = async () => {
@@ -47,7 +48,9 @@ export default function NavBar() {
         </Dropdown>
       </NavbarContent>
       <NavbarContent justify="center">
-        <p className="font-bold text-white">M Y · W A L L E T</p>
+        <Link href={"/summary"} className="font-bold text-white">
+          M Y · W A L L E T
+        </Link>
       </NavbarContent>
       <NavbarContent justify="end">
         <NavbarItem>

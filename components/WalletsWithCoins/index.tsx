@@ -27,25 +27,27 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   };
 
   return (
-    <div className={"flex gap-4 w-full"}>
-      <section className={`${walletName ? "w-1/2" : "w-full"} min-w-[500px`}>
-        <h2 className={"mb-2"}>
-          Wallets on
+    <div className={"flex gap-4 w-full md:flex-nowrap flex-wrap"}>
+      <section
+        className={`md:${walletName ? "w-1/2" : "w-full"} w-full min-w-[500px`}
+      >
+        <h2 className={"mb-2 flex items-center gap-1 h-12"}>
+          <span className={"min-w-24"}>Wallets on</span>
           <DateInput
-            className={"max-w-sm my-4"}
+            className={"w-full"}
             granularity="second"
-            label="Date and time"
+            label=""
             value={date}
             onChange={setDate}
             onBlur={onDateLeaveFocus}
+            size={"sm"}
           />
         </h2>
         <Wallets timestamp={timestamp} onChange={setWalletName} />
       </section>
 
       {walletName && (
-        <section className={"w-full min-w-[500px min-h-2"}>
-          <h2 className={"mb-2"}>Coins of {walletName}</h2>
+        <section className={"w-full min-w-[500px]"}>
           <Coins timestamp={timestamp} walletName={walletName} />
         </section>
       )}

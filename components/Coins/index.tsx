@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Input } from "@nextui-org/input";
 import { Button } from "@nextui-org/button";
 import {
@@ -30,16 +30,24 @@ import {
 import { FaRegTrashCan } from "react-icons/fa6";
 import { AiOutlineCloudDownload } from "react-icons/ai";
 import { UserData } from "@/types/firebase";
+import { formatValue } from "@/services/calc";
 
 interface CoinsProps {
   timestamp: number;
   walletName: string;
 }
 
+const renderCell = <T,>(item: T, columnKey: string | number) => {
+  const value = getKeyValue(item, columnKey);
+  if (!value) return "";
+  if (typeof value === "number") return formatValue(value);
+  return value;
+};
+
 const Coins = ({ timestamp, walletName }: CoinsProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<
-    { symbol: string; amount: number; rate: number }[]
+    { symbol: string; amount: number; rate: number; total: number }[]
   >([]);
   const [existedCoins, setExistedCoins] = useState<{ name: string }[]>([]);
   const [addingCoin, setAddingCoin] = useState<{
@@ -149,14 +157,16 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
             await get(child(ref(db), `data/${user.uid}/${timestamp}/rates`))
           ).val() || {};
 
-        setList(
-          Object.entries<any>(snapshot.val() || {}).map(([symbol, amount]) => ({
+        const rows = Object.entries<any>(snapshot.val() || {}).map(
+          ([symbol, amount]) => ({
             symbol,
             amount,
             rate: rates[symbol] || 1,
             total: Math.ceil((rates[symbol] || 1) * amount),
-          })),
+          }),
         );
+
+        setList(rows);
         setIsLoading(false);
       });
     };
@@ -192,25 +202,31 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
     }
   };
 
+  const total = useMemo(
+    () => list.reduce((acc, row) => acc + row.total, 0),
+    [list],
+  );
+
   return (
-    <div className={"mb-4 flex flex-col gap-4"}>
+    <div className={"mb-4 flex flex-col gap-2"}>
+      <h2 className={"flex items-center h-12"}>
+        Coins of {walletName} (balance: {formatValue(total)})
+      </h2>
       {isLoading ? (
-        <div className={"flex flex-col gap-8 p-4 mt-0"}>
+        <div
+          className={
+            "flex flex-col gap-6 p-4 mt-0 bg-white rounded-2xl shadow-small"
+          }
+        >
           <Skeleton className="w-full rounded-lg">
-            <div className="h-9 w-3/5 rounded-lg bg-default-200" />
+            <div className="h-9 rounded-lg bg-default-200" />
           </Skeleton>
-          <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-5 w-4/5 rounded-lg bg-default-200" />
-          </Skeleton>
-          <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-5 w-4/5 rounded-lg bg-default-300" />
-          </Skeleton>
-          <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-5 w-4/5 rounded-lg bg-default-300" />
+          <Skeleton className="w-11/12 rounded-lg mb-4">
+            <div className="h-6 rounded-lg bg-default-200" />
           </Skeleton>
         </div>
       ) : (
-        <NextUITable aria-label="Spendings">
+        <NextUITable aria-label="Spendings" isStriped>
           <TableHeader
             columns={[
               { key: "symbol", label: "Symbol" },
@@ -240,7 +256,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
               <TableRow key={item.symbol}>
                 {(columnKey) => (
                   <TableCell>
-                    {columnKey === "actions" ? (
+                    {columnKey === "actions" && item.symbol !== "" ? (
                       <Button
                         isIconOnly
                         variant={"light"}
@@ -250,7 +266,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
                         <FaRegTrashCan color={COLORS.FUCHSIA} />
                       </Button>
                     ) : (
-                      getKeyValue(item, columnKey)
+                      renderCell(item, columnKey)
                     )}
                   </TableCell>
                 )}
@@ -262,7 +278,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
 
       <div
         className={
-          "flex gap-2 flex-no-wrap items-center bg-white p-4 rounded-2xl shadow-md"
+          "flex gap-2 flex-no-wrap items-center bg-white p-4 rounded-2xl shadow-small"
         }
       >
         <Select

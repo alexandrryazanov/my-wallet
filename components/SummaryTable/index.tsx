@@ -101,8 +101,10 @@ const SummaryTable = () => {
 
   return (
     <NextUITable
-      aria-label="Spendings"
+      isStriped
+      aria-label="Summary"
       selectionMode="single"
+      color={"danger"}
       onRowAction={(key) => router.push(`/record/${key}`)}
     >
       <TableHeader columns={columnsWithService}>
@@ -110,7 +112,7 @@ const SummaryTable = () => {
       </TableHeader>
       <TableBody items={rows} emptyContent={"No records yet"}>
         {(row) => (
-          <TableRow key={row.key}>
+          <TableRow key={row.key} className={"cursor-pointer"}>
             {(columnKey) => (
               <TableCell className={clsx(columnKey === "total" && "font-bold")}>
                 {columnKey === "actions" ? (

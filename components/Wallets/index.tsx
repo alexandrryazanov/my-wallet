@@ -113,28 +113,31 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
   }, [timestamp]);
 
   return (
-    <div className={"mb-4 flex flex-col gap-4"}>
+    <div className={"mb-4 flex flex-col gap-2"}>
       {isLoading ? (
         <div
           className={
             "flex flex-col gap-6 p-4 mt-2 bg-white rounded-2xl shadow-md"
           }
         >
-          <Skeleton className="w-3/5 rounded-lg">
-            <div className="h-4 w-3/5 rounded-lg bg-default-200" />
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-4 rounded-lg bg-default-200" />
           </Skeleton>
           <Skeleton className="w-4/5 rounded-lg">
-            <div className="h-4 w-4/5 rounded-lg bg-default-200" />
+            <div className="h-4 rounded-lg bg-default-200" />
           </Skeleton>
-          <Skeleton className="w-2/5 rounded-lg">
-            <div className="h-4 w-2/5 rounded-lg bg-default-300" />
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-4 rounded-lg bg-default-200" />
+          </Skeleton>
+          <Skeleton className="w-4/5 rounded-lg">
+            <div className="h-4 rounded-lg bg-default-200" />
           </Skeleton>
         </div>
       ) : (
         <Listbox
           aria-label="Wallets"
           onAction={(key) => onChange(String(key))}
-          className={"bg-white p-4 rounded-2xl shadow-md"}
+          className={"bg-white p-4 rounded-2xl shadow-small"}
           selectionMode={"single"}
           emptyContent={"No wallets yet"}
         >
@@ -162,7 +165,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
       <div
         className={
-          "flex gap-2 flex-no-wrap bg-white p-4 rounded-2xl shadow-md items-center"
+          "flex gap-2 flex-no-wrap bg-white p-4 rounded-2xl shadow-small items-center"
         }
       >
         <Select
