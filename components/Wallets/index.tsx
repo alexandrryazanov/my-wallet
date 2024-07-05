@@ -86,13 +86,12 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
   useEffect(() => {
     if (!timestamp) return;
     const auth = getAuth();
-    if (!auth.currentUser) return;
 
     const getAndSetWalletNames = async (user: User) => {
       const dbRef = ref(getDatabase());
 
       const userSnapshot = await get(child(dbRef, `data/${user.uid}`));
-      const walletNames = await getAllWalletNames(userSnapshot);
+      const walletNames = getAllWalletNames(userSnapshot);
       setExistedWallets(walletNames.map((name) => ({ name })));
     };
 
@@ -101,8 +100,8 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
       const starCountRef = ref(db, `data/${user.uid}/${timestamp}/wallets`);
 
       onValue(starCountRef, (snapshot) => {
-        setList(Object.keys(snapshot.val() || {}));
         setIsLoading(false);
+        setList(Object.keys(snapshot.val() || {}));
       });
     };
 

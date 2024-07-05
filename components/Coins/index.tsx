@@ -29,6 +29,7 @@ import {
 } from "@nextui-org/table";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { AiOutlineCloudDownload } from "react-icons/ai";
+import { UserData } from "@/types/firebase";
 
 interface CoinsProps {
   timestamp: number;
@@ -115,11 +116,14 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
 
         if (!snapshot.exists()) return;
 
-        const results = snapshot.val();
+        const results = snapshot.val() as UserData;
         const coinNames = [
           ...new Set(
             Object.values(results).reduce<string[]>(
-              (acc, { rates }: any) => [...acc, ...Object.keys(rates)],
+              (acc, userDataOnDate) => [
+                ...acc,
+                ...Object.keys(userDataOnDate.rates || {}),
+              ],
               [],
             ),
           ),
@@ -127,7 +131,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
 
         setExistedCoins(coinNames.map((name) => ({ name })));
       } catch (error) {
-        toast.error(String(error));
+        toast.error("Could not get existed coins\n" + String(error));
       }
     };
 
