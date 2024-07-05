@@ -17,10 +17,10 @@ import { Select, SelectItem, SelectSection } from "@nextui-org/select";
 import { Listbox, ListboxItem } from "@nextui-org/listbox";
 import { toast } from "react-toastify";
 import { FaRegTrashCan } from "react-icons/fa6";
-import { Divider } from "@nextui-org/divider";
 import { COLORS } from "@/config/colors";
 import { Skeleton } from "@nextui-org/skeleton";
 import { IoAddCircle } from "react-icons/io5";
+import { getAllWalletNames } from "@/services/firebase";
 
 //TODO:
 // - don't add existed wallet name  - ✅
@@ -85,35 +85,15 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
   useEffect(() => {
     if (!timestamp) return;
-
     const auth = getAuth();
+    if (!auth.currentUser) return;
 
-    const getWallets = async () => {
-      if (!auth.currentUser) return;
+    const getAndSetWalletNames = async (user: User) => {
+      const dbRef = ref(getDatabase());
 
-      try {
-        const dbRef = ref(getDatabase());
-
-        const snapshot = await get(
-          child(dbRef, `data/${auth.currentUser.uid}`),
-        );
-
-        if (!snapshot.exists()) return;
-
-        const results = snapshot.val();
-        const walletNames = [
-          ...new Set(
-            Object.values(results).reduce<string[]>(
-              (acc, { wallets }: any) => [...acc, ...Object.keys(wallets)],
-              [],
-            ),
-          ),
-        ];
-
-        setExistedWallets(walletNames.map((name) => ({ name })));
-      } catch (error) {
-        toast.error(String(error));
-      }
+      const userSnapshot = await get(child(dbRef, `data/${user.uid}`));
+      const walletNames = await getAllWalletNames(userSnapshot);
+      setExistedWallets(walletNames.map((name) => ({ name })));
     };
 
     const onWalletsListChangeListener = (user: User) => {
@@ -128,7 +108,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
 
     onAuthStateChanged(auth, (user) => {
       if (!user) return;
-      getWallets();
+      getAndSetWalletNames(user);
       onWalletsListChangeListener(user);
     });
   }, [timestamp]);

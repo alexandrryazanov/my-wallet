@@ -1,11 +1,11 @@
 import React from "react";
-import Table from "@/components/Table";
 import AddRecordButton from "@/components/AddRecordButton";
+import SummaryTable from "@/components/SummaryTable";
 
 export default function SummaryPage() {
   return (
     <section>
-      <Table />
+      <SummaryTable />
       <AddRecordButton />
     </section>
   );

@@ -212,12 +212,21 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
               { key: "symbol", label: "Symbol" },
               { key: "amount", label: "Amount" },
               { key: "rate", label: "Rate" } as const,
-              { key: "total", label: "Total", align: "end" } as const,
-              { key: "actions", label: "Actions", align: "end" } as const,
+              {
+                key: "total",
+                label: "TOTAL",
+                align: "end",
+                bold: true,
+              } as const,
+              { key: "actions", label: "", align: "end" } as const,
             ]}
           >
             {(column) => (
-              <TableColumn key={column.key} align={column.align}>
+              <TableColumn
+                key={column.key}
+                align={column.align}
+                className={column.bold ? "font-bold" : ""}
+              >
                 {column.label}
               </TableColumn>
             )}
