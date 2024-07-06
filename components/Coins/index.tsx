@@ -55,9 +55,9 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
   const [addingCoin, setAddingCoin] = useState<{
     listValue: string;
     newValue: string;
-    amount: number;
-    rate: number;
-  }>({ listValue: "", newValue: "", amount: 0, rate: 0 });
+    amount: string;
+    rate: string;
+  }>({ listValue: "", newValue: "", amount: "0", rate: "0" });
 
   const onAdd = async () => {
     const auth = getAuth();
@@ -81,8 +81,8 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
       const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinSymbol}`;
       const coinRatePath = `data/${auth.currentUser.uid}/${timestamp}/rates/${coinSymbol}`;
 
-      await set(child(dbRef, coinRatePath), addingCoin.rate);
-      await set(child(dbRef, coinPath), addingCoin.amount);
+      await set(child(dbRef, coinRatePath), +addingCoin.rate);
+      await set(child(dbRef, coinPath), +addingCoin.amount);
 
       toast.success(`Coin ${coinSymbol} has been added to ${walletName}!`);
     } catch (error) {
@@ -198,10 +198,10 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
       );
 
       const responseJson = await response.json();
-      const rate = +Number(responseJson.data.amount).toFixed(2);
+      const rate = Number(responseJson.data.amount).toFixed(2);
       setAddingCoin((p) => ({ ...p, rate }));
     } catch (e) {
-      setAddingCoin((p) => ({ ...p, rate: 0 }));
+      setAddingCoin((p) => ({ ...p, rate: "0" }));
     }
   };
 
@@ -328,25 +328,34 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
         )}
         <Input
           label={"Amount"}
-          type="number"
+          type="text"
           size={"md"}
           placeholder="Amount"
           value={String(addingCoin.amount)}
-          onValueChange={(amount) =>
-            setAddingCoin((p) => ({ ...p, amount: +amount }))
-          }
+          onValueChange={(amount) => {
+            const onlyNumbers = /^[\d.]*$/;
+            if (!onlyNumbers.test(amount)) return;
+            setAddingCoin((p) => ({ ...p, amount }));
+          }}
           className={"w-5/12"}
         />
         <Input
           label={"Rate"}
-          type="number"
+          type="string"
           size={"md"}
           placeholder="Rate"
-          value={String(addingCoin.rate)}
-          onValueChange={(rate) =>
-            setAddingCoin((p) => ({ ...p, rate: +rate }))
-          }
+          value={addingCoin.rate}
+          onValueChange={(rate) => {
+            const onlyNumbers = /^[\d.]*$/;
+            if (!onlyNumbers.test(rate)) return;
+            setAddingCoin((p) => ({ ...p, rate }));
+          }}
           className={"w-8/12"}
+          startContent={
+            <div className="pointer-events-none flex items-center">
+              <span className="text-default-400 text-small">₽</span>
+            </div>
+          }
           endContent={
             <AiOutlineCloudDownload
               size={32}
