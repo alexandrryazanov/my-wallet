@@ -6,6 +6,9 @@ import Coins from "@/components/Coins";
 import { DateInput } from "@nextui-org/date-input";
 import { DateValue, parseAbsoluteToLocal } from "@internationalized/date";
 import { useRouter } from "next/navigation";
+import clsx from "clsx";
+import WalletPieChart from "@/components/WalletPieChart";
+import { CoinsTableRow } from "@/types/coins";
 
 interface WalletsWithCoinsProps {
   timestamp: number;
@@ -17,6 +20,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   const [date, setDate] = React.useState<DateValue>(
     parseAbsoluteToLocal("2021-01-01T00:00:00Z"),
   );
+  const [walletData, setWalletData] = useState<CoinsTableRow[]>([]);
 
   useEffect(() => {
     setDate(parseAbsoluteToLocal(new Date(timestamp).toISOString()));
@@ -27,12 +31,10 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   };
 
   return (
-    <div className={"flex gap-4 w-full md:flex-nowrap flex-wrap"}>
-      <section
-        className={`md:${walletName ? "w-1/2" : "w-full"} w-full min-w-[500px`}
-      >
+    <div className={"flex gap-4 w-full flex-wrap"}>
+      <section className={clsx("flex-1", walletName && "max-w-80")}>
         <h2 className={"mb-2 flex items-center gap-1 h-12"}>
-          <span className={"min-w-24"}>Wallets on</span>
+          <span className={"min-w-22 text-nowrap"}>Wallets on</span>
           <DateInput
             className={"w-full"}
             granularity="second"
@@ -47,9 +49,18 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
       </section>
 
       {walletName && (
-        <section className={"w-full min-w-[500px]"}>
-          <Coins timestamp={timestamp} walletName={walletName} />
-        </section>
+        <>
+          <section className={"flex-1"}>
+            <Coins
+              timestamp={timestamp}
+              walletName={walletName}
+              onDataLoaded={setWalletData}
+            />
+          </section>
+          <section className={"w-[450px] h-[450px]"}>
+            <WalletPieChart walletData={walletData} />
+          </section>
+        </>
       )}
     </div>
   );

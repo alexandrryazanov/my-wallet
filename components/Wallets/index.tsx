@@ -137,7 +137,7 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
         <Listbox
           aria-label="Wallets"
           onAction={(key) => onChange(String(key))}
-          className={"bg-white p-4 rounded-2xl shadow-small"}
+          className={"bg-white p-3 rounded-2xl shadow-small"}
           selectionMode={"single"}
           emptyContent={"No wallets yet"}
         >
@@ -145,14 +145,14 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
             <ListboxItem
               key={walletName}
               textValue={walletName}
-              className={"flex justify-between w-full"}
+              className={"flex justify-between w-full pr-0 pl-4"}
             >
               <div className={"w-full justify-between flex items-center"}>
                 <span>🏦 &emsp;{walletName}</span>
                 <Button
                   isIconOnly
                   variant={"light"}
-                  className={"hover:border-danger hover:border-1"}
+                  className={"hover:border-danger hover:border-1 z-50"}
                   onClick={() => onRemove(walletName)}
                 >
                   <FaRegTrashCan color={COLORS.FUCHSIA} />
@@ -168,44 +168,47 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
           "flex gap-2 flex-no-wrap bg-white p-4 rounded-2xl shadow-small items-center"
         }
       >
-        <Select
-          label={"Add Wallet"}
-          placeholder="Select a wallet"
-          className="w-full"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          aria-label={"Select Wallet"}
-        >
-          <SelectSection showDivider>
-            {existedWallets.map((wallet) => (
-              <SelectItem
-                key={wallet.name}
-                textValue={wallet.name}
-                aria-label={wallet.name}
-              >
-                {wallet.name}
-              </SelectItem>
-            ))}
-          </SelectSection>
+        <div className={"flex flex-col gap-1 w-full"}>
+          <Select
+            label={"Add Wallet"}
+            placeholder="Select a wallet"
+            className="w-full"
+            value={value}
+            onChange={(e) => setValue(e.target.value)}
+            aria-label={"Select Wallet"}
+          >
+            <SelectSection showDivider>
+              {existedWallets.map((wallet) => (
+                <SelectItem
+                  key={wallet.name}
+                  textValue={wallet.name}
+                  aria-label={wallet.name}
+                >
+                  {wallet.name}
+                </SelectItem>
+              ))}
+            </SelectSection>
 
-          <SelectSection>
-            <SelectItem key={"new"} textValue={"Enter name..."}>
-              Create a new wallet
-            </SelectItem>
-          </SelectSection>
-        </Select>
-        {value === "new" && (
-          <Input
-            label={"New wallet"}
-            type="name"
-            size={"md"}
-            placeholder="Enter name"
-            minLength={2}
-            value={newName}
-            onValueChange={setNewName}
-            className={"w-5/12"}
-          />
-        )}
+            <SelectSection>
+              <SelectItem key={"new"} textValue={"Enter name..."}>
+                Create a new wallet
+              </SelectItem>
+            </SelectSection>
+          </Select>
+          {value === "new" && (
+            <Input
+              label={"New wallet"}
+              type="name"
+              size={"md"}
+              placeholder="Enter name"
+              minLength={2}
+              value={newName}
+              onValueChange={setNewName}
+              className={"w-full"}
+            />
+          )}
+        </div>
+
         <Button
           onClick={onAdd}
           disabled={!value}
@@ -220,4 +223,4 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
   );
 };
 
-export default Wallets;
+export default React.memo(Wallets);

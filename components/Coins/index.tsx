@@ -31,10 +31,12 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { AiOutlineCloudDownload } from "react-icons/ai";
 import { UserData } from "@/types/firebase";
 import { formatValue } from "@/services/calc";
+import { CoinsTableRow } from "@/types/coins";
 
 interface CoinsProps {
   timestamp: number;
   walletName: string;
+  onDataLoaded?: (data: CoinsTableRow[]) => void;
 }
 
 const renderCell = <T,>(item: T, columnKey: string | number) => {
@@ -44,7 +46,7 @@ const renderCell = <T,>(item: T, columnKey: string | number) => {
   return value;
 };
 
-const Coins = ({ timestamp, walletName }: CoinsProps) => {
+const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<
     { symbol: string; amount: number; rate: number; total: number }[]
@@ -157,7 +159,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
             await get(child(ref(db), `data/${user.uid}/${timestamp}/rates`))
           ).val() || {};
 
-        const rows = Object.entries<any>(snapshot.val() || {}).map(
+        const data = Object.entries<any>(snapshot.val() || {}).map(
           ([symbol, amount]) => ({
             symbol,
             amount,
@@ -166,7 +168,8 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
           }),
         );
 
-        setList(rows);
+        setList(data);
+        onDataLoaded?.(data);
         setIsLoading(false);
       });
     };
@@ -343,7 +346,7 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
           onValueChange={(rate) =>
             setAddingCoin((p) => ({ ...p, rate: +rate }))
           }
-          className={"w-5/12"}
+          className={"w-8/12"}
           endContent={
             <AiOutlineCloudDownload
               size={32}
@@ -366,4 +369,4 @@ const Coins = ({ timestamp, walletName }: CoinsProps) => {
   );
 };
 
-export default Coins;
+export default React.memo(Coins);
