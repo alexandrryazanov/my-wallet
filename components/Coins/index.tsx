@@ -31,12 +31,12 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { AiOutlineCloudDownload } from "react-icons/ai";
 import { UserData } from "@/types/firebase";
 import { formatValue } from "@/services/calc";
-import { CoinsTableRow } from "@/types/coins";
+import { CoinsForChartData } from "@/types/coins";
 
 interface CoinsProps {
   timestamp: number;
   walletName: string;
-  onDataLoaded?: (data: CoinsTableRow[]) => void;
+  onDataLoaded?: (data: CoinsForChartData[]) => void;
 }
 
 const renderCell = <T,>(item: T, columnKey: string | number) => {
@@ -211,7 +211,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
   );
 
   return (
-    <div className={"mb-4 flex flex-col gap-2"}>
+    <div className={"mb-4 flex flex-col gap-2 z-50"}>
       <h2 className={"flex items-center h-12"}>
         Coins of {walletName} (balance: {formatValue(total)})
       </h2>
@@ -229,7 +229,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
           </Skeleton>
         </div>
       ) : (
-        <NextUITable aria-label="Spendings" isStriped>
+        <NextUITable aria-label="Spendings" isStriped className={"z-50"}>
           <TableHeader
             columns={[
               { key: "symbol", label: "Symbol" },

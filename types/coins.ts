@@ -1,6 +1,4 @@
-export interface CoinsTableRow {
+export interface CoinsForChartData {
   symbol: string;
-  amount: number;
-  rate: number;
   total: number;
 }

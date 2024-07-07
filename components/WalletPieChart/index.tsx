@@ -2,25 +2,26 @@
 
 import React from "react";
 import { ResponsivePie } from "@nivo/pie";
-import { CoinsTableRow } from "@/types/coins";
+
 import { formatValue } from "@/services/calc";
+import { CoinsForChartData } from "@/types/coins";
 
 interface WalletPieChartProps {
-  walletData: CoinsTableRow[];
+  chartData: CoinsForChartData[];
 }
 
-const WalletPieChart = ({ walletData }: WalletPieChartProps) => {
-  const data = walletData.map((coin) => ({
+const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
+  const data = chartData.map((coin) => ({
     id: coin.symbol,
     label: coin.symbol,
     value: coin.total,
   }));
 
   return (
-    <div className={"w-full h-full mt-14"}>
+    <div className={"w-full h-full mt-12"}>
       <ResponsivePie
         data={data}
-        margin={{ top: 35, right: 0, bottom: 80, left: 0 }}
+        margin={{ top: 50, right: 20, bottom: 80, left: 20 }}
         innerRadius={0.5}
         padAngle={4}
         cornerRadius={8}

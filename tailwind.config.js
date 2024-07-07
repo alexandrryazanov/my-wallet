@@ -56,7 +56,7 @@ module.exports = {
               DEFAULT: COLORS.DARK_GRAY,
             },
             secondary: {
-              foreground: COLORS.SOFT_PINK,
+              foreground: COLORS.PURE_WHITE,
               DEFAULT: COLORS.SOFT_PURPLE,
             },
             success: {
