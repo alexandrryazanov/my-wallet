@@ -42,10 +42,10 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
     <div className={"w-full h-full mt-12"}>
       <ResponsivePie
         data={data}
-        margin={{ top: 50, right: 40, bottom: 80, left: 60 }}
+        margin={{ top: 50, right: 70, bottom: 80, left: 80 }}
         innerRadius={0.5}
-        padAngle={4}
-        cornerRadius={8}
+        padAngle={2}
+        cornerRadius={6}
         activeOuterRadiusOffset={8}
         borderWidth={2}
         borderColor={{
@@ -54,10 +54,10 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
         }}
         valueFormat={formatValue}
         arcLinkLabelsSkipAngle={4}
-        arcLinkLabelsTextColor="#333333"
+        arcLinkLabelsTextColor={COLORS.MID_GRAY}
         arcLinkLabelsOffset={10}
         arcLinkLabelsDiagonalLength={20}
-        arcLinkLabelsStraightLength={30}
+        arcLinkLabelsStraightLength={20}
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
         layers={["arcs", "arcLabels", "arcLinkLabels", CenteredText]}
