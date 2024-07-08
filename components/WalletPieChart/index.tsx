@@ -61,7 +61,7 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
         layers={["arcs", "arcLabels", "arcLinkLabels", CenteredText]}
-        colors={{ scheme: "set2" }}
+        colors={{ scheme: "pastel2" }}
       />
     </div>
   );
