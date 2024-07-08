@@ -66,4 +66,4 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
   );
 };
 
-export default WalletPieChart;
+export default React.memo(WalletPieChart);

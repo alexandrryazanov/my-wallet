@@ -28,8 +28,8 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
 import { toast } from "react-toastify";
 import useConfirmation from "@/hooks/useConfirmation";
-import ComparingWithPrevValue from "@/components/SummaryTable/ComparingWithPrevValue";
-import { renderCell } from "@/components/SummaryTable/utils";
+import ComparingWithPrevValue from "./ComparingWithPrevValue";
+import { renderCell } from "./utils";
 
 const SummaryTable = () => {
   const { showConfirmationPopup } = useConfirmation();
@@ -102,7 +102,9 @@ const SummaryTable = () => {
       aria-label="Summary"
       selectionMode="single"
       color={"danger"}
-      onRowAction={(key) => router.push(`/record/${key}`)}
+      onRowAction={(key) => {
+        router.push(`/record/${key}`);
+      }}
     >
       <TableHeader columns={columnsWithService}>
         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}

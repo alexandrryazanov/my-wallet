@@ -8,7 +8,6 @@ import { DateValue, parseAbsoluteToLocal } from "@internationalized/date";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import WalletPieChart from "@/components/WalletPieChart";
-
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, onValue, ref } from "@firebase/database";
 import { UserDataOnDate } from "@/types/firebase";
@@ -54,6 +53,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
 
       onValue(starCountRef, (snapshot) => {
         if (!snapshot.exists()) return;
+
         const { wallets, rates } = snapshot.val() as UserDataOnDate;
         const dataObject = Object.values(wallets || {}).reduce<
           Record<string, number>
@@ -73,6 +73,8 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
       });
     });
   }, [timestamp]);
+
+  const chartData = walletName ? walletChartData : allWalletsChartData;
 
   return (
     <div className={"flex gap-4 w-full flex-wrap"}>
@@ -108,15 +110,15 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
           </Button>
         </section>
       )}
-      <section
-        className={
-          walletName ? "w-[450px] h-[450px]" : "md:w-1/2 w-full h-[650px]"
-        }
-      >
-        <WalletPieChart
-          chartData={walletName ? walletChartData : allWalletsChartData}
-        />
-      </section>
+      {chartData.length > 0 && (
+        <section
+          className={
+            walletName ? "w-[450px] h-[450px]" : "md:w-1/2 w-full h-[650px]"
+          }
+        >
+          <WalletPieChart chartData={chartData} />
+        </section>
+      )}
     </div>
   );
 }
