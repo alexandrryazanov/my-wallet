@@ -21,14 +21,7 @@ import { COLORS } from "@/config/colors";
 import { Skeleton } from "@nextui-org/skeleton";
 import { IoAddCircle } from "react-icons/io5";
 import { getAllWalletNames } from "@/services/firebase";
-
-//TODO:
-// - don't add existed wallet name  - ✅
-// - remove wallet - ✅
-// - date as array (or timestamp of the day start)
-// - add coins
-// - remove coins
-// - create summary table
+import useConfirmation from "@/hooks/useConfirmation";
 
 interface WalletsProps {
   timestamp: number;
@@ -36,6 +29,8 @@ interface WalletsProps {
 }
 
 const Wallets = ({ timestamp, onChange }: WalletsProps) => {
+  const { showConfirmationPopup } = useConfirmation();
+
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<string[]>([]);
   const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
@@ -153,7 +148,10 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
                   isIconOnly
                   variant={"light"}
                   className={"hover:border-danger hover:border-1 z-50"}
-                  onClick={() => onRemove(walletName)}
+                  onClick={showConfirmationPopup(
+                    () => onRemove(walletName),
+                    `Remove ${walletName} wallet from the current date?`,
+                  )}
                 >
                   <FaRegTrashCan color={COLORS.FUCHSIA} />
                 </Button>

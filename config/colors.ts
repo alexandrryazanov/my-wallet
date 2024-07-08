@@ -2,7 +2,7 @@ export enum COLORS {
   SOFT_PINK = "#FFF1F8",
   FUCHSIA = "#FE005B",
   MAGENTA_20 = "#FAD5E5",
-  MID_YELLOW = "#FFEE96",
+  MID_YELLOW = "#ff7b33",
   LIGHTBLUE = "#E1E1FF",
   LILAC = "#CCCCFB",
   MINT_GREEN = "#78EE9D",

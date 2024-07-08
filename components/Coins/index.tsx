@@ -32,6 +32,7 @@ import { AiOutlineCloudDownload } from "react-icons/ai";
 import { UserData } from "@/types/firebase";
 import { formatValue } from "@/services/calc";
 import { CoinsForChartData } from "@/types/coins";
+import useConfirmation from "@/hooks/useConfirmation";
 
 interface CoinsProps {
   timestamp: number;
@@ -47,6 +48,8 @@ const renderCell = <T,>(item: T, columnKey: string | number) => {
 };
 
 const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
+  const { showConfirmationPopup } = useConfirmation();
+
   const [isLoading, setIsLoading] = useState(true);
   const [list, setList] = useState<
     { symbol: string; amount: number; rate: number; total: number }[]
@@ -264,7 +267,10 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
                         isIconOnly
                         variant={"light"}
                         className={"hover:border-danger hover:border-1"}
-                        onClick={() => onRemove(item.symbol)}
+                        onClick={showConfirmationPopup(
+                          () => onRemove(item.symbol),
+                          `Remove ${item.symbol} coin from ${walletName} wallet?`,
+                        )}
                       >
                         <FaRegTrashCan color={COLORS.FUCHSIA} />
                       </Button>

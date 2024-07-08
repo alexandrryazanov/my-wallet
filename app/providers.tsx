@@ -9,6 +9,7 @@ import { initFirebase } from "@/services/firebase";
 import useAuthListener from "@/hooks/useAuthListener";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ConfirmationProvider from "@/contexts/ConfirmationContext/Provider";
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -25,7 +26,7 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   return (
     <NextUIProvider navigate={router.push}>
       <NextThemesProvider {...themeProps}>
-        {children}
+        <ConfirmationProvider>{children}</ConfirmationProvider>
         <ToastContainer />
       </NextThemesProvider>
     </NextUIProvider>

@@ -28,6 +28,7 @@ import { Button } from "@nextui-org/button";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
 import { toast } from "react-toastify";
+import useConfirmation from "@/hooks/useConfirmation";
 
 const renderCell = <T,>(item: T, columnKey: string | number) => {
   const value = getKeyValue(item, columnKey);
@@ -37,6 +38,8 @@ const renderCell = <T,>(item: T, columnKey: string | number) => {
 };
 
 const SummaryTable = () => {
+  const { showConfirmationPopup } = useConfirmation();
+
   const router = useRouter();
 
   const [rows, setRows] = useState<Record<string, number | string>[]>([]);
@@ -120,7 +123,10 @@ const SummaryTable = () => {
                     isIconOnly
                     variant={"light"}
                     className={"hover:border-danger hover:border-1"}
-                    onClick={() => onRemove(row.key)}
+                    onClick={showConfirmationPopup(
+                      () => onRemove(row.key),
+                      `Remove record of ${row.date}?`,
+                    )}
                   >
                     <FaRegTrashCan color={COLORS.FUCHSIA} />
                   </Button>
