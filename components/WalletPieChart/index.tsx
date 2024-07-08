@@ -43,7 +43,7 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
       <ResponsivePie
         data={data}
         margin={{ top: 50, right: 70, bottom: 80, left: 80 }}
-        innerRadius={0.5}
+        innerRadius={0.6}
         padAngle={2}
         cornerRadius={6}
         activeOuterRadiusOffset={8}
@@ -61,6 +61,7 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
         layers={["arcs", "arcLabels", "arcLinkLabels", CenteredText]}
+        colors={{ scheme: "set2" }}
       />
     </div>
   );
