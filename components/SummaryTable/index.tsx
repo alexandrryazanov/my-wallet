@@ -23,19 +23,13 @@ import { getAllWalletNames, getTableData } from "@/services/firebase";
 import { Spinner } from "@nextui-org/spinner";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { formatValue } from "@/services/calc";
 import { Button } from "@nextui-org/button";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
 import { toast } from "react-toastify";
 import useConfirmation from "@/hooks/useConfirmation";
-
-const renderCell = <T,>(item: T, columnKey: string | number) => {
-  const value = getKeyValue(item, columnKey);
-  if (!value) return "-";
-  if (typeof value === "number") return formatValue(value);
-  return value;
-};
+import ComparingWithPrevValue from "@/components/SummaryTable/ComparingWithPrevValue";
+import { renderCell } from "@/components/SummaryTable/utils";
 
 const SummaryTable = () => {
   const { showConfirmationPopup } = useConfirmation();
@@ -113,8 +107,8 @@ const SummaryTable = () => {
       <TableHeader columns={columnsWithService}>
         {(column) => <TableColumn key={column.key}>{column.label}</TableColumn>}
       </TableHeader>
-      <TableBody items={rows} emptyContent={"No records yet"}>
-        {(row) => (
+      <TableBody emptyContent={"No records yet"}>
+        {rows.map((row, rowNumber) => (
           <TableRow key={row.key} className={"cursor-pointer"}>
             {(columnKey) => (
               <TableCell className={clsx(columnKey === "total" && "font-bold")}>
@@ -131,12 +125,18 @@ const SummaryTable = () => {
                     <FaRegTrashCan color={COLORS.FUCHSIA} />
                   </Button>
                 ) : (
-                  renderCell(row, columnKey)
+                  <div className={"relative w-fit"}>
+                    <span>{renderCell(row, columnKey)}</span>
+                    <ComparingWithPrevValue
+                      current={getKeyValue(row, columnKey)}
+                      prev={getKeyValue(rows[rowNumber - 1], columnKey)}
+                    />
+                  </div>
                 )}
               </TableCell>
             )}
           </TableRow>
-        )}
+        ))}
       </TableBody>
     </NextUITable>
   );

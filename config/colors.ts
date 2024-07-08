@@ -6,6 +6,7 @@ export enum COLORS {
   LIGHTBLUE = "#E1E1FF",
   LILAC = "#CCCCFB",
   MINT_GREEN = "#78EE9D",
+  DARK_GREEN = "#119f00",
   SOFT_PURPLE = "#85A0FF",
   WHITE = "#F6F6FF",
   PURE_WHITE = "#FFFFFF",

@@ -60,6 +60,7 @@ module.exports = {
               DEFAULT: COLORS.SOFT_PURPLE,
             },
             success: {
+              900: COLORS.DARK_GREEN,
               DEFAULT: COLORS.MINT_GREEN,
             },
             warning: {
