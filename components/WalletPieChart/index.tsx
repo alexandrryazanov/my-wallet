@@ -5,6 +5,8 @@ import { ResponsivePie } from "@nivo/pie";
 
 import { formatValue } from "@/services/calc";
 import { CoinsForChartData } from "@/types/coins";
+import { PieCustomLayerProps } from "@nivo/pie/dist/types/types";
+import { COLORS } from "@/config/colors";
 
 interface WalletPieChartProps {
   chartData: CoinsForChartData[];
@@ -16,6 +18,25 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
     label: coin.symbol,
     value: coin.total,
   }));
+
+  const total = chartData.reduce((acc, coin) => acc + coin.total, 0);
+
+  const CenteredText = ({ centerX, centerY }: PieCustomLayerProps<any>) => {
+    if (!total) return null;
+    return (
+      <text
+        x={centerX}
+        y={centerY}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill={COLORS.MID_GRAY}
+        className={"text-2xl"}
+        style={{ fontWeight: 600 }}
+      >
+        {formatValue(total)}
+      </text>
+    );
+  };
 
   return (
     <div className={"w-full h-full mt-12"}>
@@ -39,6 +60,7 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
         arcLinkLabelsStraightLength={30}
         arcLinkLabelsColor={{ from: "color" }}
         arcLabelsSkipAngle={10}
+        layers={["arcs", "arcLabels", "arcLinkLabels", CenteredText]}
       />
     </div>
   );
