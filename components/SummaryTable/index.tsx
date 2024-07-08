@@ -111,7 +111,7 @@ const SummaryTable = () => {
         {rows.map((row, rowNumber) => (
           <TableRow key={row.key} className={"cursor-pointer"}>
             {(columnKey) => (
-              <TableCell className={clsx(columnKey === "total" && "font-bold")}>
+              <TableCell>
                 {columnKey === "actions" ? (
                   <Button
                     isIconOnly
@@ -126,7 +126,11 @@ const SummaryTable = () => {
                   </Button>
                 ) : (
                   <div className={"relative w-fit"}>
-                    <span>{renderCell(row, columnKey)}</span>
+                    <span
+                      className={clsx(columnKey === "total" && "font-bold")}
+                    >
+                      {renderCell(row, columnKey)}
+                    </span>
                     <ComparingWithPrevValue
                       current={getKeyValue(row, columnKey)}
                       prev={getKeyValue(rows[rowNumber - 1], columnKey)}

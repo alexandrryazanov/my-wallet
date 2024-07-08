@@ -42,7 +42,7 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
     <div className={"w-full h-full mt-12"}>
       <ResponsivePie
         data={data}
-        margin={{ top: 50, right: 20, bottom: 80, left: 20 }}
+        margin={{ top: 50, right: 40, bottom: 80, left: 60 }}
         innerRadius={0.5}
         padAngle={4}
         cornerRadius={8}
