@@ -100,7 +100,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
             onBlur={onDateLeaveFocus}
             size={"sm"}
           />
-          <WalletsOnNowModal data={allWalletsChartData} />
+          {!walletName && <WalletsOnNowModal data={allWalletsChartData} />}
         </h2>
         <Wallets timestamp={timestamp} onChange={setWalletName} />
       </section>

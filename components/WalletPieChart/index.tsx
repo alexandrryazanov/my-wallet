@@ -52,21 +52,43 @@ const WalletPieChart = ({ chartData, className }: WalletPieChartProps) => {
   }));
 
   const total = chartData.reduce((acc, coin) => acc + coin.total, 0);
+  const oldTotal = chartData.reduce(
+    (acc, coin) => acc + coin.total - (coin.difference || 0),
+    0,
+  );
 
   const CenteredText = ({ centerX, centerY }: PieCustomLayerProps<any>) => {
     if (!total) return null;
+
+    const difference = total - oldTotal;
+    const sign = difference < 0 ? "-" : "+";
+
     return (
-      <text
-        x={centerX}
-        y={centerY}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill={COLORS.MID_GRAY}
-        className={"text-2xl"}
-        style={{ fontWeight: 600 }}
-      >
-        {formatValue(total)}
-      </text>
+      <>
+        <text
+          x={centerX}
+          y={centerY}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fill={COLORS.MID_GRAY}
+          className={"text-2xl"}
+          style={{ fontWeight: 600 }}
+        >
+          {formatValue(total)}
+        </text>
+        {difference !== 0 && (
+          <text
+            x={centerX}
+            y={centerY + 27}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fill={difference < 0 ? COLORS.FUCHSIA : COLORS.DARK_GREEN}
+            className={"text-md"}
+          >
+            {sign + formatValue(difference)}
+          </text>
+        )}
+      </>
     );
   };
 
