@@ -185,14 +185,8 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
     });
   }, [timestamp, walletName]);
 
-  const loadRate = async () => {
-    const coinSymbol = (
-      addingCoin.listValue === "new"
-        ? addingCoin.newValue
-        : addingCoin.listValue
-    )
-      .trim()
-      .toUpperCase();
+  const loadRate = async (symbol: string) => {
+    const coinSymbol = symbol.trim().toUpperCase();
 
     if (!coinSymbol) return;
 
@@ -279,17 +273,18 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
 
       <div
         className={
-          "flex gap-2 flex-no-wrap items-center bg-white p-4 rounded-2xl shadow-small"
+          "flex gap-2 flex-wrap items-center bg-white p-4 rounded-2xl shadow-small"
         }
       >
         <Select
           label={"Add Coin"}
           placeholder="Select a coin"
-          className="w-full"
+          className="md:w-3/12 w-full"
           value={addingCoin.listValue}
-          onChange={(e) =>
-            setAddingCoin((p) => ({ ...p, listValue: e.target.value }))
-          }
+          onChange={(e) => {
+            loadRate(e.target.value);
+            setAddingCoin((p) => ({ ...p, listValue: e.target.value }));
+          }}
           aria-label={"Select coin"}
         >
           <SelectSection showDivider>
@@ -312,7 +307,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
         </Select>
         {addingCoin.listValue === "new" && (
           <Input
-            label={"New coin"}
+            label={"Coin"}
             type="text"
             size={"md"}
             placeholder="Symbol"
@@ -321,21 +316,21 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
             onValueChange={(symbol) =>
               setAddingCoin((p) => ({ ...p, newValue: symbol }))
             }
-            className={"w-5/12"}
+            className="w-20"
           />
         )}
         <Input
           label={"Amount"}
           type="text"
           size={"md"}
-          placeholder="Amount"
+          placeholder="0"
           value={String(addingCoin.amount)}
           onValueChange={(amount) => {
             const onlyNumbers = /^[\d.]*$/;
             if (!onlyNumbers.test(amount)) return;
             setAddingCoin((p) => ({ ...p, amount }));
           }}
-          className={"w-5/12"}
+          className="w-20"
         />
         <Input
           label={"Rate"}
@@ -348,7 +343,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
             if (!onlyNumbers.test(rate)) return;
             setAddingCoin((p) => ({ ...p, rate }));
           }}
-          className={"w-8/12"}
+          className="w-40"
           startContent={
             <div className="pointer-events-none flex items-center">
               <span className="text-default-400 text-small">₽</span>
@@ -358,7 +353,13 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
             <AiOutlineCloudDownload
               size={32}
               className={"cursor-pointer pt-3 ml-2"}
-              onClick={loadRate}
+              onClick={() =>
+                loadRate(
+                  addingCoin.listValue === "new"
+                    ? addingCoin.newValue
+                    : addingCoin.listValue,
+                )
+              }
             />
           }
         />
@@ -368,6 +369,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
           disabled={!addingCoin.listValue}
           color={"primary"}
           variant={"light"}
+          className={"px-1 min-w-12"}
         >
           <IoAddCircle size={28} color={COLORS.MINT_GREEN} />
         </Button>
