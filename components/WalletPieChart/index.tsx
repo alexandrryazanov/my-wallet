@@ -7,12 +7,14 @@ import { formatValue } from "@/services/calc";
 import { CoinsForChartData } from "@/types/coins";
 import { PieCustomLayerProps } from "@nivo/pie/dist/types/types";
 import { COLORS } from "@/config/colors";
+import clsx from "clsx";
 
 interface WalletPieChartProps {
   chartData: CoinsForChartData[];
+  className?: string;
 }
 
-const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
+const WalletPieChart = ({ chartData, className }: WalletPieChartProps) => {
   const data = chartData.map((coin) => ({
     id: coin.symbol,
     label: coin.symbol,
@@ -39,10 +41,10 @@ const WalletPieChart = ({ chartData }: WalletPieChartProps) => {
   };
 
   return (
-    <div className={"w-full h-full mt-12"}>
+    <div className={clsx("w-full h-full", className)}>
       <ResponsivePie
         data={data}
-        margin={{ top: 50, right: 70, bottom: 80, left: 80 }}
+        margin={{ top: 50, right: 80, bottom: 80, left: 80 }}
         innerRadius={0.6}
         padAngle={2}
         cornerRadius={6}

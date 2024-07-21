@@ -14,6 +14,8 @@ import { UserDataOnDate } from "@/types/firebase";
 import { CoinsForChartData } from "@/types/coins";
 import { Button } from "@nextui-org/button";
 import { AiOutlineClose } from "react-icons/ai";
+import { MdUpdate } from "react-icons/md";
+import WalletsOnNowModal from "../WalletsOnNowModal";
 
 interface WalletsWithCoinsProps {
   timestamp: number;
@@ -56,19 +58,28 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
 
         const { wallets, rates } = snapshot.val() as UserDataOnDate;
         const dataObject = Object.values(wallets || {}).reduce<
-          Record<string, number>
+          Record<string, { amount: number; total: number; rate: number }>
         >((acc, coins) => {
           Object.entries(coins).forEach(([symbol, amount]) => {
-            acc[symbol] = (acc[symbol] || 0) + amount * (rates?.[symbol] || 1);
+            acc[symbol] = {
+              rate: rates?.[symbol] || 1,
+              amount: (acc[symbol]?.amount || 0) + amount,
+              total:
+                (acc[symbol]?.total || 0) + amount * (rates?.[symbol] || 1),
+            };
           });
           return acc;
         }, {});
 
         setAllWalletsChartData(
-          Object.entries(dataObject).map(([symbol, total]) => ({
-            symbol,
-            total,
-          })),
+          Object.entries(dataObject).map(
+            ([symbol, { amount, total, rate }]) => ({
+              symbol,
+              amount,
+              rate,
+              total,
+            }),
+          ),
         );
       });
     });
@@ -89,6 +100,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
             onBlur={onDateLeaveFocus}
             size={"sm"}
           />
+          <WalletsOnNowModal data={allWalletsChartData} />
         </h2>
         <Wallets timestamp={timestamp} onChange={setWalletName} />
       </section>
@@ -116,7 +128,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
             walletName ? "w-[450px] h-[450px]" : "md:w-1/2 w-full h-[650px]"
           }
         >
-          <WalletPieChart chartData={chartData} />
+          <WalletPieChart chartData={chartData} className={"mt-12"} />
         </section>
       )}
     </div>

@@ -33,6 +33,7 @@ import { UserData } from "@/types/firebase";
 import { formatValue } from "@/services/calc";
 import { CoinsForChartData } from "@/types/coins";
 import useConfirmation from "@/hooks/useConfirmation";
+import { loadRateFromCoinbase } from "@/services/coinbase";
 
 interface CoinsProps {
   timestamp: number;
@@ -184,7 +185,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
     });
   }, [timestamp, walletName]);
 
-  const loadRateFromCoinbase = async () => {
+  const loadRate = async () => {
     const coinSymbol = (
       addingCoin.listValue === "new"
         ? addingCoin.newValue
@@ -195,17 +196,8 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
 
     if (!coinSymbol) return;
 
-    try {
-      const response = await fetch(
-        `https://api.coinbase.com/v2/prices/${coinSymbol}-RUB/buy`,
-      );
-
-      const responseJson = await response.json();
-      const rate = Number(responseJson.data.amount).toFixed(2);
-      setAddingCoin((p) => ({ ...p, rate }));
-    } catch (e) {
-      setAddingCoin((p) => ({ ...p, rate: "0" }));
-    }
+    const rate = await loadRateFromCoinbase(coinSymbol);
+    setAddingCoin((p) => ({ ...p, rate: String(rate || 0) }));
   };
 
   const total = useMemo(
@@ -350,7 +342,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
           type="string"
           size={"md"}
           placeholder="Rate"
-          value={addingCoin.rate}
+          value={String(addingCoin.rate)}
           onValueChange={(rate) => {
             const onlyNumbers = /^[\d.]*$/;
             if (!onlyNumbers.test(rate)) return;
@@ -366,7 +358,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
             <AiOutlineCloudDownload
               size={32}
               className={"cursor-pointer pt-3 ml-2"}
-              onClick={loadRateFromCoinbase}
+              onClick={loadRate}
             />
           }
         />
