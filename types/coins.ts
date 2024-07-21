@@ -3,4 +3,5 @@ export interface CoinsForChartData {
   total: number;
   amount: number;
   rate: number;
+  difference?: number;
 }

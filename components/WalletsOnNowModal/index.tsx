@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { MdOutlineUpdate } from "react-icons/md";
 import { Button } from "@nextui-org/button";
 import {
@@ -35,17 +35,21 @@ const WalletsOnNowModal = ({ data }: WalletsOnNowModalProps) => {
       for (const coin of data) {
         setCoinIsLoading(coin.symbol);
         const rate = await loadRateFromCoinbase(coin.symbol);
-        setDataWithNewRates((prev) => [
-          ...prev,
-          {
-            symbol: coin.symbol,
-            amount: coin.amount,
-            rate: rate || coin.rate,
-            total: rate
-              ? Math.ceil(rate * coin.amount)
-              : coin.rate * coin.amount,
-          },
-        ]);
+        setDataWithNewRates((prev) => {
+          const newRate = rate || coin.rate;
+          const total = newRate * coin.amount;
+          const oldTotal = coin.rate * coin.amount;
+          return [
+            ...prev,
+            {
+              symbol: coin.symbol,
+              amount: coin.amount,
+              rate: newRate,
+              total: newRate * coin.amount,
+              difference: total - oldTotal,
+            },
+          ];
+        });
       }
       setCoinIsLoading(undefined);
     };
@@ -68,7 +72,7 @@ const WalletsOnNowModal = ({ data }: WalletsOnNowModalProps) => {
           {(onClose) => (
             <>
               <ModalHeader className="flex flex-col gap-1">
-                Wallets with current rates
+                All coins with current rates
               </ModalHeader>
               <ModalBody className={"mb-3"}>
                 <section

@@ -14,11 +14,41 @@ interface WalletPieChartProps {
   className?: string;
 }
 
+interface CoinData {
+  id: string;
+  label: string;
+  value: number;
+  difference?: number;
+}
+
+const Tooltip = ({ data }: { data: CoinData }) => {
+  const sign = data.difference !== undefined && data.difference > 0 ? "+" : "";
+  const formattedDifference = sign + formatValue(data.difference || 0);
+  const formattedValue = formatValue(data.value);
+
+  return (
+    <div className={"px-2 py-1 bg-white rounded-lg shadow-small"}>
+      <span>
+        {data.label}: {formattedValue}
+      </span>
+      {data.difference !== undefined && (
+        <span
+          className={data.difference < 0 ? "text-danger" : "text-success-900"}
+        >
+          {" "}
+          ({formattedDifference})
+        </span>
+      )}
+    </div>
+  );
+};
+
 const WalletPieChart = ({ chartData, className }: WalletPieChartProps) => {
-  const data = chartData.map((coin) => ({
+  const data: CoinData[] = chartData.map((coin) => ({
     id: coin.symbol,
     label: coin.symbol,
     value: coin.total,
+    difference: coin.difference,
   }));
 
   const total = chartData.reduce((acc, coin) => acc + coin.total, 0);
@@ -64,6 +94,7 @@ const WalletPieChart = ({ chartData, className }: WalletPieChartProps) => {
         arcLabelsSkipAngle={10}
         layers={["arcs", "arcLabels", "arcLinkLabels", CenteredText]}
         colors={{ scheme: "pastel2" }}
+        tooltip={(e) => <Tooltip data={e.datum.data} />}
       />
     </div>
   );
