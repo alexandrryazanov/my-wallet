@@ -61,7 +61,7 @@ const WalletPieChart = ({ chartData, className }: WalletPieChartProps) => {
     if (!total) return null;
 
     const difference = total - oldTotal;
-    const sign = difference < 0 ? "-" : "+";
+    const sign = difference < 0 ? "" : "+";
 
     return (
       <>
