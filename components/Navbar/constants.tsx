@@ -1,14 +1,20 @@
 import React from "react";
 import { COLORS } from "@/config/colors";
-import { IoAddCircle } from "react-icons/io5";
-import { ImTable } from "react-icons/im";
+import { IoAddCircle, IoWalletOutline } from "react-icons/io5";
+import { CiBitcoin } from "react-icons/ci";
 
 export const NAV_ITEMS = [
   {
-    title: "Summary",
+    title: "Wallets summary",
     path: "/summary",
-    icon: <ImTable size={24} color={COLORS.FUCHSIA} />,
+    icon: <IoWalletOutline size={24} color={COLORS.FUCHSIA} />,
     description: "Summary for all wallets",
+  },
+  {
+    title: "Coins summary",
+    path: "/summary/coins",
+    icon: <CiBitcoin size={24} color={COLORS.FUCHSIA} />,
+    description: "Summary for all coins",
   },
   {
     title: "Add record",

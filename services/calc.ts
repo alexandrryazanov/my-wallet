@@ -23,6 +23,23 @@ export function calcWalletValues(wallets: Wallets, rates: Rates) {
   return { ...walletResults, total };
 }
 
+export function calcCoinValues(wallets: Wallets, rates: Rates) {
+  const coinResults = Object.values(wallets).reduce((acc, wallet) => {
+    Object.entries(wallet).forEach(([coin, value]) => {
+      acc[coin] = (acc[coin] || 0) + value * (rates[coin as CoinSymbol] || 1);
+    });
+
+    return acc;
+  }, {});
+
+  const total = Object.values(coinResults).reduce(
+    (acc, value) => acc + value,
+    0,
+  );
+
+  return { ...coinResults, total };
+}
+
 export const formatValue = (x: number, full?: boolean): string => {
   const [int] = x.toString().split(".");
   if (int.length <= 3 || full) return x.toLocaleString();

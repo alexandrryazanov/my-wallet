@@ -3,7 +3,7 @@ import { DataSnapshot } from "@firebase/database";
 import { toast } from "react-toastify";
 import { UserData, UserDataOnDate } from "@/types/firebase";
 import { format } from "date-fns";
-import { calcWalletValues } from "@/services/calc";
+import { calcCoinValues, calcWalletValues } from "@/services/calc";
 
 export function initFirebase() {
   initializeApp({
@@ -41,7 +41,7 @@ export function getAllWalletNames(userSnapshot: DataSnapshot) {
   }
 }
 
-export function getTableData(
+export function getWalletsTableData(
   userSnapshot: DataSnapshot,
 ): Record<string, number | string>[] {
   try {
@@ -55,6 +55,43 @@ export function getTableData(
     }));
   } catch (error) {
     toast.error("Error when getting wallets data\n" + String(error));
+    return [];
+  }
+}
+
+export function getAllCoinNames(userSnapshot: DataSnapshot) {
+  try {
+    if (!userSnapshot.exists()) return [];
+    const userData = userSnapshot.val() as UserData;
+
+    return [
+      ...new Set(
+        Object.values(userData).reduce<string[]>((acc, val) => {
+          Object.values(val.wallets || {}).forEach((coins) => {
+            acc.push(...Object.keys(coins));
+          });
+          return acc;
+        }, []),
+      ),
+    ];
+  } catch (error) {
+    toast.error("Error when getting coins\n" + String(error));
+    return [];
+  }
+}
+
+export function getCoinsTableData(userSnapshot: DataSnapshot) {
+  try {
+    if (!userSnapshot.exists()) return [];
+    const userData = userSnapshot.val() as UserData;
+
+    return Object.entries(userData).map(([timestamp, { wallets, rates }]) => ({
+      key: timestamp,
+      date: format(new Date(+timestamp), "dd.MM.yyyy"),
+      ...calcCoinValues(wallets || {}, rates || {}),
+    }));
+  } catch (error) {
+    toast.error("Error when getting coins data\n" + String(error));
     return [];
   }
 }

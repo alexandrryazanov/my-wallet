@@ -10,30 +10,17 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/table";
-import {
-  child,
-  getDatabase,
-  onValue,
-  ref,
-  remove,
-  Unsubscribe,
-} from "@firebase/database";
+import { getDatabase, onValue, ref, Unsubscribe } from "@firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getAllWalletNames, getWalletsTableData } from "@/services/firebase";
+import { getAllCoinNames, getCoinsTableData } from "@/services/firebase";
 import { Spinner } from "@nextui-org/spinner";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { Button } from "@nextui-org/button";
-import { FaRegTrashCan } from "react-icons/fa6";
-import { COLORS } from "@/config/colors";
-import { toast } from "react-toastify";
-import useConfirmation from "@/hooks/useConfirmation";
+
 import ComparingValue from "@/components/ComparingValue";
 import { renderCell } from "@/services/ui";
 
-const SummaryTable = () => {
-  const { showConfirmationPopup } = useConfirmation();
-
+const SummaryCoinsTable = () => {
   const router = useRouter();
 
   const [rows, setRows] = useState<Record<string, number | string>[]>([]);
@@ -52,8 +39,8 @@ const SummaryTable = () => {
 
       unsubscribeDb = onValue(userRef, async (userSnapshot) => {
         setIsLoading(true);
-        setColumnNames(getAllWalletNames(userSnapshot));
-        setRows(getWalletsTableData(userSnapshot));
+        setColumnNames(getAllCoinNames(userSnapshot));
+        setRows(getCoinsTableData(userSnapshot));
         setIsLoading(false);
       });
     });
@@ -64,29 +51,11 @@ const SummaryTable = () => {
     };
   }, []);
 
-  const onRemove = (timestamp: string | number) => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
-
-    try {
-      const dbRef = ref(getDatabase());
-
-      const coinPath = `data/${auth.currentUser.uid}/${timestamp}`;
-
-      remove(child(dbRef, coinPath));
-
-      toast.success(`Record has been removed!`);
-    } catch (e) {
-      toast.error("Could not remove record\n" + String(e));
-    }
-  };
-
   const columns = columnNames.map((column) => ({ key: column, label: column }));
   const columnsWithService = [
     { key: "date", label: "Date" },
     ...columns,
     { key: "total", label: "TOTAL" },
-    { key: "actions", label: "" },
   ];
 
   if (isLoading)
@@ -99,7 +68,7 @@ const SummaryTable = () => {
   return (
     <NextUITable
       isStriped
-      aria-label="Summary"
+      aria-label="Coins summary"
       selectionMode="single"
       color={"danger"}
       onRowAction={(key) => {
@@ -113,32 +82,16 @@ const SummaryTable = () => {
         {rows.map((row, rowNumber) => (
           <TableRow key={row.key} className={"cursor-pointer"}>
             {(columnKey) => (
-              <TableCell>
-                {columnKey === "actions" ? (
-                  <Button
-                    isIconOnly
-                    variant={"light"}
-                    className={"hover:border-danger hover:border-1"}
-                    onClick={showConfirmationPopup(
-                      () => onRemove(row.key),
-                      `Remove record of ${row.date}?`,
-                    )}
-                  >
-                    <FaRegTrashCan color={COLORS.FUCHSIA} />
-                  </Button>
-                ) : (
-                  <div className={"relative w-fit"}>
-                    <span
-                      className={clsx(columnKey === "total" && "font-bold")}
-                    >
-                      {renderCell(row, columnKey)}
-                    </span>
-                    <ComparingValue
-                      current={getKeyValue(row, columnKey)}
-                      prev={getKeyValue(rows[rowNumber - 1], columnKey)}
-                    />
-                  </div>
-                )}
+              <TableCell className={"h-[56px]"}>
+                <div className={"relative w-fit "}>
+                  <span className={clsx(columnKey === "total" && "font-bold")}>
+                    {renderCell(row, columnKey)}
+                  </span>
+                  <ComparingValue
+                    current={getKeyValue(row, columnKey)}
+                    prev={getKeyValue(rows[rowNumber - 1], columnKey)}
+                  />
+                </div>
               </TableCell>
             )}
           </TableRow>
@@ -148,4 +101,4 @@ const SummaryTable = () => {
   );
 };
 
-export default SummaryTable;
+export default SummaryCoinsTable;

@@ -2,7 +2,7 @@ import { formatValue } from "@/services/calc";
 import clsx from "clsx";
 import React from "react";
 
-const ComparingWithPrevValue = ({
+const ComparingValue = ({
   current,
   prev,
 }: {
@@ -22,7 +22,7 @@ const ComparingWithPrevValue = ({
 
   return (
     <span
-      className={clsx("absolute text-[8px] -right-4 -top-3", {
+      className={clsx("absolute text-[9px] -right-4 -top-3", {
         ["text-success-900"]: value > 0,
         ["text-danger"]: value < 0,
       })}
@@ -32,4 +32,4 @@ const ComparingWithPrevValue = ({
   );
 };
 
-export default ComparingWithPrevValue;
+export default ComparingValue;
