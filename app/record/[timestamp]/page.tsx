@@ -1,10 +1,11 @@
 import React from "react";
 import WalletsWithCoins from "@/components/WalletsWithCoins";
 
-export default function RecordEditPage({
-  params: { timestamp },
+export default async function RecordEditPage({
+  params,
 }: {
-  params: { timestamp: string };
+  params: Promise<{ timestamp: string }>;
 }) {
+  const timestamp = (await params).timestamp;
   return <WalletsWithCoins timestamp={+timestamp} />;
 }
