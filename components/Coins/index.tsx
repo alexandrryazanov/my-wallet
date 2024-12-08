@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Input } from "@nextui-org/input";
-import { Button } from "@nextui-org/button";
+import { Input, Button } from "@nextui-org/react";
+
 import {
   child,
   get,
@@ -13,12 +13,10 @@ import {
   set,
 } from "@firebase/database";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { Select, SelectItem, SelectSection } from "@nextui-org/select";
-import { toast } from "react-toastify";
-import { COLORS } from "@/config/colors";
-import { Skeleton } from "@nextui-org/skeleton";
-import { IoAddCircle } from "react-icons/io5";
 import {
+  Select,
+  SelectItem,
+  SelectSection,
   getKeyValue,
   Table as NextUITable,
   TableBody,
@@ -26,7 +24,11 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/table";
+  Skeleton,
+} from "@nextui-org/react";
+import { toast } from "react-toastify";
+import { COLORS } from "@/config/colors";
+import { IoAddCircle } from "react-icons/io5";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { AiOutlineCloudDownload } from "react-icons/ai";
 import { UserData } from "@/types/firebase";

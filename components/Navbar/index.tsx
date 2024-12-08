@@ -1,22 +1,27 @@
 "use client";
 
 import React from "react";
-import { Navbar, NavbarContent, NavbarItem } from "@nextui-org/navbar";
-import { Button } from "@nextui-org/button";
 import {
+  Navbar,
+  NavbarContent,
+  NavbarItem,
+  Button,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
-} from "@nextui-org/dropdown";
+} from "@nextui-org/react";
 import { RiMenuFill } from "react-icons/ri";
 import { COLORS } from "@/config/colors";
 import { FiLogIn } from "react-icons/fi";
 import { NAV_ITEMS } from "@/components/Navbar/constants";
 import { getAuth } from "firebase/auth";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function NavBar() {
+  const router = useRouter();
+
   const onSignOut = async () => {
     const auth = getAuth();
     await auth.signOut();
@@ -33,7 +38,11 @@ export default function NavBar() {
               </Button>
             </DropdownTrigger>
           </NavbarItem>
-          <DropdownMenu className="w-[340px]" itemClasses={{ base: "gap-4" }}>
+          <DropdownMenu
+            className="w-[340px]"
+            itemClasses={{ base: "gap-4" }}
+            onAction={(key) => router.push(String(key))}
+          >
             {NAV_ITEMS.map((item) => (
               <DropdownItem
                 key={item.path}

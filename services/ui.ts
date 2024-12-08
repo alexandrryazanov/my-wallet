@@ -1,4 +1,4 @@
-import { getKeyValue } from "@nextui-org/table";
+import { getKeyValue } from "@nextui-org/react";
 import { formatValue } from "@/services/calc";
 
 export const renderCell = <T>(item: T, columnKey: string | number) => {

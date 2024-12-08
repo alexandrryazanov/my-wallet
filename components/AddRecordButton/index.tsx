@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { IoAddCircle } from "react-icons/io5";
 import { COLORS } from "@/config/colors";

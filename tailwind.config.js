@@ -1,4 +1,4 @@
-import { nextui } from "@nextui-org/theme";
+import { nextui } from "@nextui-org/react";
 import { COLORS } from "./config/colors";
 
 /** @type {import('tailwindcss').Config} */

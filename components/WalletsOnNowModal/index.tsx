@@ -2,14 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import { MdOutlineUpdate } from "react-icons/md";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";
 import {
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
   useDisclosure,
-} from "@nextui-org/modal";
+} from "@nextui-org/react";
 import { CoinsForChartData } from "@/types/coins";
 import WalletPieChart from "@/components/WalletPieChart";
 import { loadRateFromCoinbase } from "@/services/coinbase";

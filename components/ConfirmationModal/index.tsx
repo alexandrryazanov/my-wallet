@@ -5,8 +5,8 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-} from "@nextui-org/modal";
-import { Button } from "@nextui-org/button";
+  Button,
+} from "@nextui-org/react";
 import { IoWarningOutline } from "react-icons/io5";
 import { COLORS } from "@/config/colors";
 

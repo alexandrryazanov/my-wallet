@@ -1,5 +1,5 @@
 import React from "react";
-import { Spinner as NextUiSpinner } from "@nextui-org/spinner";
+import { Spinner as NextUiSpinner } from "@nextui-org/react";
 
 const Spinner = () => {
   return (

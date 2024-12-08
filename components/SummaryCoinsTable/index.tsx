@@ -9,11 +9,11 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/table";
+} from "@nextui-org/react";
 import { getDatabase, onValue, ref, Unsubscribe } from "@firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAllCoinNames, getCoinsTableData } from "@/services/firebase";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 

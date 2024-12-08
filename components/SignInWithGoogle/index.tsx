@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";
 import authWithGoogle from "@/services/auth";
 import { FirebaseError } from "@firebase/util";
 import { useRouter } from "next/navigation";

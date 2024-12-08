@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Input } from "@nextui-org/input";
-import { Button } from "@nextui-org/button";
+import { Input, Button } from "@nextui-org/react";
+
 import {
   child,
   get,
@@ -13,12 +13,18 @@ import {
   set,
 } from "@firebase/database";
 import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import { Select, SelectItem, SelectSection } from "@nextui-org/select";
-import { Listbox, ListboxItem } from "@nextui-org/listbox";
+import {
+  Select,
+  SelectItem,
+  SelectSection,
+  Skeleton,
+  Listbox,
+  ListboxItem,
+} from "@nextui-org/react";
+
 import { toast } from "react-toastify";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
-import { Skeleton } from "@nextui-org/skeleton";
 import { IoAddCircle } from "react-icons/io5";
 import { getAllWalletNames } from "@/services/firebase";
 import useConfirmation from "@/hooks/useConfirmation";

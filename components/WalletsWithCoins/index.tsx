@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Wallets from "@/components/Wallets";
 import Coins from "@/components/Coins";
-import { DateInput } from "@nextui-org/date-input";
+import { DateInput } from "@nextui-org/react";
 import { DateValue, parseAbsoluteToLocal } from "@internationalized/date";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
@@ -12,9 +12,8 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getDatabase, onValue, ref } from "@firebase/database";
 import { UserDataOnDate } from "@/types/firebase";
 import { CoinsForChartData } from "@/types/coins";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";
 import { AiOutlineClose } from "react-icons/ai";
-import { MdUpdate } from "react-icons/md";
 import WalletsOnNowModal from "../WalletsOnNowModal";
 
 interface WalletsWithCoinsProps {
@@ -24,7 +23,7 @@ interface WalletsWithCoinsProps {
 export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   const router = useRouter();
   const [walletName, setWalletName] = useState("");
-  const [date, setDate] = React.useState<DateValue>(
+  const [date, setDate] = React.useState<DateValue | null>(
     parseAbsoluteToLocal("2021-01-01T00:00:00Z"),
   );
   const [walletChartData, setWalletChartData] = useState<CoinsForChartData[]>(
@@ -39,6 +38,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   }, [timestamp]);
 
   const onDateLeaveFocus = () => {
+    if (!date) return;
     router.replace(`/record/${date.toDate("").getTime()}`);
   };
 

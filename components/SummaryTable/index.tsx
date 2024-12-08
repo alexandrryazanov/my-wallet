@@ -9,7 +9,7 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
-} from "@nextui-org/table";
+} from "@nextui-org/react";
 import {
   child,
   getDatabase,
@@ -20,10 +20,10 @@ import {
 } from "@firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAllWalletNames, getWalletsTableData } from "@/services/firebase";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { Button } from "@nextui-org/button";
+import { Button } from "@nextui-org/react";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
 import { toast } from "react-toastify";

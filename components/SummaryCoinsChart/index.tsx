@@ -5,11 +5,14 @@ import { ResponsiveBar } from "@nivo/bar";
 import { getDatabase, onValue, ref, Unsubscribe } from "@firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getAllCoinNames, getCoinsTableData } from "@/services/firebase";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@nextui-org/react";
 import { formatValue } from "@/services/calc";
-import { Card } from "@nextui-org/card";
+import { Card } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
 
 const SummaryCoinsChart = () => {
+  const router = useRouter();
+
   const [rows, setRows] = useState<Record<string, number | string>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [columnNames, setColumnNames] = useState<string[]>([]);
@@ -81,6 +84,7 @@ const SummaryCoinsChart = () => {
             symbolSize: 20,
           },
         ]}
+        onClick={(d) => router.push(`/record/${d.data.key}`)}
       />
     </Card>
   );
