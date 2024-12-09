@@ -29,7 +29,7 @@ export default function NavBar() {
 
   return (
     <Navbar maxWidth={"full"} isBordered className={"bg-black"}>
-      <NavbarContent className="hidden sm:flex gap-4" justify="start">
+      <NavbarContent className="flex gap-4" justify="start">
         <Dropdown>
           <NavbarItem>
             <DropdownTrigger>

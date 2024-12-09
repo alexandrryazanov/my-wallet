@@ -89,9 +89,8 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
 
   return (
     <div className={"flex gap-4 w-full flex-wrap"}>
-      <section className={clsx("flex-1", walletName && "max-w-80")}>
+      <section className={clsx("flex-1", walletName && "md:max-w-80")}>
         <h2 className={"mb-2 flex items-center gap-1 h-12"}>
-          <span className={"min-w-22 text-nowrap"}>Wallets on</span>
           <DateInput
             className={"w-full"}
             granularity="second"
@@ -115,7 +114,10 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
           <Button
             isIconOnly
             className={"absolute right-0 top-3 pb-12 pt-5"}
-            onClick={() => setWalletName("")}
+            onClick={() => {
+              setWalletName("");
+            }}
+            onTouchEnd={() => setWalletName("")}
             variant={"bordered"}
           >
             <AiOutlineClose size={18} />
@@ -125,7 +127,9 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
       {chartData.length > 0 && (
         <section
           className={
-            walletName ? "w-[450px] h-[450px]" : "md:w-1/2 w-full h-[650px]"
+            walletName
+              ? "md:w-[450px] w-full h-[450px]"
+              : "md:w-1/2 w-full h-[650px]"
           }
         >
           <WalletPieChart chartData={chartData} className={"mt-12"} />

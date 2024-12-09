@@ -59,7 +59,7 @@ const WalletsOnNowModal = ({ data }: WalletsOnNowModalProps) => {
 
   return (
     <>
-      <Button isIconOnly onClick={onOpen} variant={"light"}>
+      <Button isIconOnly onClick={onOpen} onTouchEnd={onOpen} variant={"light"}>
         <MdOutlineUpdate size={24} />
       </Button>
       <Modal

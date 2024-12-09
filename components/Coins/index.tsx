@@ -202,7 +202,7 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
   );
 
   return (
-    <div className={"mb-4 flex flex-col gap-2 z-50"}>
+    <div className={"mb-4 flex flex-col gap-2 z-50 max-w-full"}>
       <h2 className={"flex items-center h-12"}>
         Coins of {walletName} (balance: {formatValue(total)})
       </h2>
@@ -220,7 +220,11 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
           </Skeleton>
         </div>
       ) : (
-        <NextUITable aria-label="Spendings" isStriped className={"z-50"}>
+        <NextUITable
+          aria-label="Spendings"
+          isStriped
+          className={"z-50 w-full max-w-full"}
+        >
           <TableHeader
             columns={[
               { key: "symbol", label: "Symbol" },
@@ -254,7 +258,9 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
                       <Button
                         isIconOnly
                         variant={"light"}
-                        className={"hover:border-danger hover:border-1"}
+                        className={
+                          "hover:border-danger hover:border-1 md:block hidden"
+                        }
                         onClick={showConfirmationPopup(
                           () => onRemove(item.symbol),
                           `Remove ${item.symbol} coin from ${walletName} wallet?`,
