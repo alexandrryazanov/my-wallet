@@ -12,14 +12,14 @@ import {
 } from "@nextui-org/react";
 import { CoinsForChartData } from "@/types/coins";
 import WalletPieChart from "@/components/WalletPieChart";
-import { loadRateFromCoinbase } from "@/services/coinbase";
+import { loadRatesFromProvider } from '@/services/coinbase';
 
 interface WalletsOnNowModalProps {
   data: CoinsForChartData[];
 }
 
 const WalletsOnNowModal = ({ data }: WalletsOnNowModalProps) => {
-  const [coinIsLoading, setCoinIsLoading] = useState<string | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
   const [dataWithNewRates, setDataWithNewRates] = useState<CoinsForChartData[]>(
     [],
   );
@@ -32,26 +32,17 @@ const WalletsOnNowModal = ({ data }: WalletsOnNowModalProps) => {
     setDataWithNewRates([]);
 
     const fetchData = async () => {
-      for (const coin of data) {
-        setCoinIsLoading(coin.symbol);
-        const rate = await loadRateFromCoinbase(coin.symbol);
-        setDataWithNewRates((prev) => {
-          const newRate = rate || coin.rate;
-          const total = newRate * coin.amount;
-          const oldTotal = coin.rate * coin.amount;
-          return [
-            ...prev,
-            {
-              symbol: coin.symbol,
-              amount: coin.amount,
-              rate: newRate,
-              total: newRate * coin.amount,
-              difference: total - oldTotal,
-            },
-          ];
-        });
-      }
-      setCoinIsLoading(undefined);
+      const rates = await loadRatesFromProvider(data.map((coin) => coin.symbol));
+
+      setDataWithNewRates(data.map((coin) => ({
+        symbol: coin.symbol,
+        amount: coin.amount,
+        rate: rates[coin.symbol] || 0,
+        total: (rates[coin.symbol] || 0) * coin.amount,
+        difference: (rates[coin.symbol] || 0) * coin.amount - (coin.rate * coin.amount) ,
+      })));
+
+      setIsLoading(false);
     };
 
     fetchData();
@@ -80,8 +71,8 @@ const WalletsOnNowModal = ({ data }: WalletsOnNowModalProps) => {
                     "w-full h-[550px] flex items-center justify-center"
                   }
                 >
-                  {coinIsLoading ? (
-                    `Loading rate for ${coinIsLoading}...`
+                  {isLoading ? (
+                    `Loading rates...`
                   ) : (
                     <WalletPieChart
                       chartData={dataWithNewRates}

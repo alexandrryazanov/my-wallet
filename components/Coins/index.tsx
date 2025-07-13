@@ -1,41 +1,34 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import { Input, Button } from "@nextui-org/react";
+import { COLORS } from '@/config/colors';
+import useConfirmation from '@/hooks/useConfirmation';
+import { formatValue } from '@/services/calc';
+import { loadRatesFromProvider } from '@/services/coinbase';
+import { CoinsForChartData } from '@/types/coins';
+import { UserData } from '@/types/firebase';
 
+import { child, get, getDatabase, onValue, ref, remove, set } from '@firebase/database';
 import {
-  child,
-  get,
-  getDatabase,
-  onValue,
-  ref,
-  remove,
-  set,
-} from "@firebase/database";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
-import {
+  Button,
+  getKeyValue,
+  Input,
   Select,
   SelectItem,
   SelectSection,
-  getKeyValue,
+  Skeleton,
   Table as NextUITable,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
-  TableRow,
-  Skeleton,
-} from "@nextui-org/react";
-import { toast } from "react-toastify";
-import { COLORS } from "@/config/colors";
-import { IoAddCircle } from "react-icons/io5";
-import { FaRegTrashCan } from "react-icons/fa6";
-import { AiOutlineCloudDownload } from "react-icons/ai";
-import { UserData } from "@/types/firebase";
-import { formatValue } from "@/services/calc";
-import { CoinsForChartData } from "@/types/coins";
-import useConfirmation from "@/hooks/useConfirmation";
-import { loadRateFromCoinbase } from "@/services/coinbase";
+  TableRow
+} from '@nextui-org/react';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
+import React, { useEffect, useMemo, useState } from 'react';
+import { AiOutlineCloudDownload } from 'react-icons/ai';
+import { FaRegTrashCan } from 'react-icons/fa6';
+import { IoAddCircle } from 'react-icons/io5';
+import { toast } from 'react-toastify';
 
 interface CoinsProps {
   timestamp: number;
@@ -192,8 +185,8 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
 
     if (!coinSymbol) return;
 
-    const rate = await loadRateFromCoinbase(coinSymbol);
-    setAddingCoin((p) => ({ ...p, rate: String(rate || 0) }));
+    const rate = await loadRatesFromProvider([coinSymbol]);
+    setAddingCoin((p) => ({ ...p, rate: String(rate[coinSymbol] || 0) }));
   };
 
   const total = useMemo(
