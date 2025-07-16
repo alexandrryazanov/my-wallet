@@ -1,6 +1,6 @@
-const loadRateFromCryptoCompare = async (symbols: string[], markupPercent = 4) => {
+const loadRateFromCryptoCompare = async (symbols: string[], markupPercent = 0) => {
   const fsyms = symbols.map((s) => s.toUpperCase()).join(',');
-  const tsyms = 'RUB';
+  const tsyms = 'USD';
 
   try {
     const response = await fetch(
@@ -10,9 +10,15 @@ const loadRateFromCryptoCompare = async (symbols: string[], markupPercent = 4) =
 
     const result: Record<string, number> = {};
 
+    const usdrubRes = await fetch(
+      `https://api.exchangerate-api.com/v4/latest/${tsyms}`
+    );
+
+    const { rates } = await usdrubRes.json();
+
     for (const symbol of symbols) {
       const upper = symbol.toUpperCase();
-      const mid = data[upper]?.RUB;
+      const mid = data[upper]?.USD * rates.RUB;
       if (!mid) continue;
 
       const ask = mid * (1 + markupPercent / 100);
