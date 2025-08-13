@@ -21,7 +21,7 @@ const loadRateFromCryptoCompare = async (symbols: string[], markupPercent = 0) =
       const mid = data[upper]?.USD * rates.RUB;
       if (!mid) continue;
 
-      const ask = mid * (1 + markupPercent / 100);
+      const ask = symbol === 'RUB' ? 1 : mid * (1 + markupPercent / 100);
       result[upper] = +ask.toFixed(2);
     }
 
