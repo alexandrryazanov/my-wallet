@@ -23,9 +23,10 @@ interface WalletsWithCoinsProps {
 export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   const router = useRouter();
   const [walletName, setWalletName] = useState("");
-  const [date, setDate] = React.useState<DateValue | null>(
-    parseAbsoluteToLocal("2021-01-01T00:00:00Z"),
-  );
+  // Start as null so SSR and the first client render match. The real,
+  // timezone-dependent value is set on the client in the effect below,
+  // avoiding a hydration mismatch on the date segments.
+  const [date, setDate] = React.useState<DateValue | null>(null);
   const [walletChartData, setWalletChartData] = useState<CoinsForChartData[]>(
     [],
   );
@@ -91,14 +92,19 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
     <div className={"flex gap-4 w-full flex-wrap"}>
       <section className={clsx("flex-1", walletName && "md:max-w-80")}>
         <h2 className={"mb-2 flex items-center gap-1 h-12"}>
-          <DateInput
-            className={"w-full"}
-            granularity="second"
-            value={date}
-            onChange={setDate}
-            onBlur={onDateLeaveFocus}
-            size={"sm"}
-          />
+          {/* Rendered only after `date` is set on the client (in the effect
+              above). DateInput's segments depend on the runtime timezone, so
+              rendering it on the server causes a hydration mismatch. */}
+          {date && (
+            <DateInput
+              className={"w-full"}
+              granularity="second"
+              value={date}
+              onChange={setDate}
+              onBlur={onDateLeaveFocus}
+              size={"sm"}
+            />
+          )}
           {!walletName && <WalletsOnNowModal data={allWalletsChartData} />}
         </h2>
         <Wallets timestamp={timestamp} onChange={setWalletName} />
