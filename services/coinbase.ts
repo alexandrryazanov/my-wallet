@@ -13,7 +13,7 @@ const fetchCryptoUsd = async (symbol: string): Promise<number | null> => {
     }
   } catch {}
 
-  // OKX
+  //OKX
   try {
     const r = await fetch(
       `https://www.okx.com/api/v5/market/ticker?instId=${symbol}-USDT`
