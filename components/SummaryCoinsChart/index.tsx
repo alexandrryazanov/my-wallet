@@ -1,45 +1,22 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import { ResponsiveBar } from "@nivo/bar";
-import { getDatabase, onValue, ref, Unsubscribe } from "@firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getAllCoinNames, getCoinsTableData } from "@/services/firebase";
 import { Spinner } from "@nextui-org/react";
 import { formatValue } from "@/services/calc";
 import { Card } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
+import { useUserData } from "@/hooks/db";
+import { coinNamesFrom, coinsTableData } from "@/services/db/transforms";
 
 const SummaryCoinsChart = () => {
   const router = useRouter();
 
-  const [rows, setRows] = useState<Record<string, number | string>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [columnNames, setColumnNames] = useState<string[]>([]);
+  const { data, isLoading } = useUserData();
 
-  useEffect(() => {
-    let unsubscribeDb: Unsubscribe | null;
-    const auth = getAuth();
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-
-      const db = getDatabase();
-      const userRef = ref(db, `data/${user.uid}`);
-
-      unsubscribeDb = onValue(userRef, async (userSnapshot) => {
-        setIsLoading(true);
-        setColumnNames(getAllCoinNames(userSnapshot));
-        setRows(getCoinsTableData(userSnapshot).reverse());
-        setIsLoading(false);
-      });
-    });
-
-    return () => {
-      unsubscribeDb?.();
-      unsubscribeAuth();
-    };
-  }, []);
+  const columnNames = useMemo(() => coinNamesFrom(data), [data]);
+  // `coinsTableData` returns a fresh array, so reversing it in place is safe.
+  const rows = useMemo(() => coinsTableData(data).reverse(), [data]);
 
   if (isLoading)
     return (

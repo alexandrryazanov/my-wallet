@@ -8,12 +8,10 @@ import { DateValue, parseAbsoluteToLocal } from "@internationalized/date";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import WalletPieChart from "@/components/WalletPieChart";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getDatabase, onValue, ref } from "@firebase/database";
-import { UserDataOnDate } from "@/types/firebase";
 import { CoinsForChartData } from "@/types/coins";
 import { Button } from "@nextui-org/react";
 import { AiOutlineClose } from "react-icons/ai";
+import { useRecordCoinTotals } from "@/hooks/db";
 import WalletsOnNowModal from "../WalletsOnNowModal";
 
 interface WalletsWithCoinsProps {
@@ -30,9 +28,7 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
   const [walletChartData, setWalletChartData] = useState<CoinsForChartData[]>(
     [],
   );
-  const [allWalletsChartData, setAllWalletsChartData] = useState<
-    CoinsForChartData[]
-  >([]);
+  const allWalletsChartData = useRecordCoinTotals(timestamp);
 
   useEffect(() => {
     setDate(parseAbsoluteToLocal(new Date(timestamp).toISOString()));
@@ -42,49 +38,6 @@ export default function WalletsWithCoins({ timestamp }: WalletsWithCoinsProps) {
     if (!date) return;
     router.replace(`/record/${date.toDate("").getTime()}`);
   };
-
-  //TODO: RFC
-  useEffect(() => {
-    if (!timestamp) return;
-    const auth = getAuth();
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-
-      const db = getDatabase();
-      const starCountRef = ref(db, `data/${user.uid}/${timestamp}`);
-
-      onValue(starCountRef, (snapshot) => {
-        if (!snapshot.exists()) return;
-
-        const { wallets, rates } = snapshot.val() as UserDataOnDate;
-        const dataObject = Object.values(wallets || {}).reduce<
-          Record<string, { amount: number; total: number; rate: number }>
-        >((acc, coins) => {
-          Object.entries(coins).forEach(([symbol, amount]) => {
-            acc[symbol] = {
-              rate: rates?.[symbol] || 1,
-              amount: (acc[symbol]?.amount || 0) + amount,
-              total:
-                (acc[symbol]?.total || 0) + amount * (rates?.[symbol] || 1),
-            };
-          });
-          return acc;
-        }, {});
-
-        setAllWalletsChartData(
-          Object.entries(dataObject).map(
-            ([symbol, { amount, total, rate }]) => ({
-              symbol,
-              amount,
-              rate,
-              total,
-            }),
-          ),
-        );
-      });
-    });
-  }, [timestamp]);
 
   const chartData = walletName ? walletChartData : allWalletsChartData;
 

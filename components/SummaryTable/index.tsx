@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import {
   getKeyValue,
   Table as NextUITable,
@@ -10,16 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import {
-  child,
-  getDatabase,
-  onValue,
-  ref,
-  remove,
-  Unsubscribe,
-} from "@firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getAllWalletNames, getWalletsTableData } from "@/services/firebase";
 import { Spinner } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
@@ -28,53 +18,27 @@ import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
 import { toast } from "react-toastify";
 import useConfirmation from "@/hooks/useConfirmation";
+import { useCurrentUser, useUserData } from "@/hooks/db";
+import { removeRecord } from "@/services/db/walletRepository";
+import { walletNamesFrom, walletsTableData } from "@/services/db/transforms";
 import ComparingValue from "@/components/ComparingValue";
 import { renderCell } from "@/services/ui";
 
 const SummaryTable = () => {
   const { showConfirmationPopup } = useConfirmation();
-
   const router = useRouter();
 
-  const [rows, setRows] = useState<Record<string, number | string>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [columnNames, setColumnNames] = useState<string[]>([]);
+  const user = useCurrentUser();
+  const { data, isLoading } = useUserData();
 
-  useEffect(() => {
-    let unsubscribeDb: Unsubscribe | null;
-    const auth = getAuth();
+  const columnNames = useMemo(() => walletNamesFrom(data), [data]);
+  const rows = useMemo(() => walletsTableData(data), [data]);
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-
-      const db = getDatabase();
-      const userRef = ref(db, `data/${user.uid}`);
-
-      unsubscribeDb = onValue(userRef, async (userSnapshot) => {
-        setIsLoading(true);
-        setColumnNames(getAllWalletNames(userSnapshot));
-        setRows(getWalletsTableData(userSnapshot));
-        setIsLoading(false);
-      });
-    });
-
-    return () => {
-      unsubscribeDb?.();
-      unsubscribeAuth();
-    };
-  }, []);
-
-  const onRemove = (timestamp: string | number) => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
+  const onRemove = async (timestamp: string | number) => {
+    if (!user) return;
 
     try {
-      const dbRef = ref(getDatabase());
-
-      const coinPath = `data/${auth.currentUser.uid}/${timestamp}`;
-
-      remove(child(dbRef, coinPath));
-
+      await removeRecord(user.uid, timestamp);
       toast.success(`Record has been removed!`);
     } catch (e) {
       toast.error("Could not remove record\n" + String(e));

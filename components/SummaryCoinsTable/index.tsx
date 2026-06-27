@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useMemo } from "react";
 import {
   getKeyValue,
   Table as NextUITable,
@@ -10,46 +10,22 @@ import {
   TableHeader,
   TableRow,
 } from "@nextui-org/react";
-import { getDatabase, onValue, ref, Unsubscribe } from "@firebase/database";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { getAllCoinNames, getCoinsTableData } from "@/services/firebase";
 import { Spinner } from "@nextui-org/react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
 
+import { useUserData } from "@/hooks/db";
+import { coinNamesFrom, coinsTableData } from "@/services/db/transforms";
 import ComparingValue from "@/components/ComparingValue";
 import { renderCell } from "@/services/ui";
 
 const SummaryCoinsTable = () => {
   const router = useRouter();
 
-  const [rows, setRows] = useState<Record<string, number | string>[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [columnNames, setColumnNames] = useState<string[]>([]);
+  const { data, isLoading } = useUserData();
 
-  useEffect(() => {
-    let unsubscribeDb: Unsubscribe | null;
-    const auth = getAuth();
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-
-      const db = getDatabase();
-      const userRef = ref(db, `data/${user.uid}`);
-
-      unsubscribeDb = onValue(userRef, async (userSnapshot) => {
-        setIsLoading(true);
-        setColumnNames(getAllCoinNames(userSnapshot));
-        setRows(getCoinsTableData(userSnapshot));
-        setIsLoading(false);
-      });
-    });
-
-    return () => {
-      unsubscribeDb?.();
-      unsubscribeAuth();
-    };
-  }, []);
+  const columnNames = useMemo(() => coinNamesFrom(data), [data]);
+  const rows = useMemo(() => coinsTableData(data), [data]);
 
   const columns = columnNames.map((column) => ({ key: column, label: column }));
   const columnsWithService = [

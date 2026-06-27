@@ -1,18 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Input, Button } from "@nextui-org/react";
-
-import {
-  child,
-  get,
-  getDatabase,
-  onValue,
-  ref,
-  remove,
-  set,
-} from "@firebase/database";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import {
   Select,
   SelectItem,
@@ -26,8 +15,13 @@ import { toast } from "react-toastify";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { COLORS } from "@/config/colors";
 import { IoAddCircle } from "react-icons/io5";
-import { getAllWalletNames } from "@/services/firebase";
 import useConfirmation from "@/hooks/useConfirmation";
+import {
+  useCurrentUser,
+  useRecordWallets,
+  useWalletNames,
+} from "@/hooks/db";
+import { addWallet, removeWallet } from "@/services/db/walletRepository";
 
 interface WalletsProps {
   timestamp: number;
@@ -37,28 +31,24 @@ interface WalletsProps {
 const Wallets = ({ timestamp, onChange }: WalletsProps) => {
   const { showConfirmationPopup } = useConfirmation();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [list, setList] = useState<string[]>([]);
-  const [existedWallets, setExistedWallets] = useState<{ name: string }[]>([]);
+  const user = useCurrentUser();
+  const { walletNames: list, isLoading } = useRecordWallets(timestamp);
+  const existedWallets = useWalletNames().map((name) => ({ name }));
+
   const [value, setValue] = useState("");
   const [newName, setNewName] = useState("");
 
-  const onAdd = () => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
+  const onAdd = async () => {
+    if (!user) return;
+
+    const walletName = (value === "new" ? newName : value).trim();
+
+    if (!walletName.length) return toast.error("Select correct wallet");
+    if (list.includes(walletName))
+      return toast.error("Such wallet already exists");
 
     try {
-      const dbRef = ref(getDatabase());
-      const walletName = (value === "new" ? newName : value).trim();
-
-      if (!walletName.length) return toast.error("Select correct wallet");
-      if (list.includes(walletName))
-        return toast.error("Such wallet already exists");
-
-      const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
-
-      set(child(dbRef, walletPath), "");
-
+      await addWallet(user.uid, timestamp, walletName);
       toast.success(`Wallet ${walletName} has been added!`);
     } catch (error) {
       console.error(error);
@@ -66,52 +56,17 @@ const Wallets = ({ timestamp, onChange }: WalletsProps) => {
     }
   };
 
-  const onRemove = (walletName: string) => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
+  const onRemove = async (walletName: string) => {
+    if (!user) return;
 
     try {
-      const dbRef = ref(getDatabase());
-
-      const walletPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}`;
-
-      remove(child(dbRef, walletPath));
-
+      await removeWallet(user.uid, timestamp, walletName);
       toast.success(`Wallet ${walletName} has been removed!`);
     } catch (error) {
       console.error(error);
       toast.error("Could not remove wallet");
     }
   };
-
-  useEffect(() => {
-    if (!timestamp) return;
-    const auth = getAuth();
-
-    const getAndSetWalletNames = async (user: User) => {
-      const dbRef = ref(getDatabase());
-
-      const userSnapshot = await get(child(dbRef, `data/${user.uid}`));
-      const walletNames = getAllWalletNames(userSnapshot);
-      setExistedWallets(walletNames.map((name) => ({ name })));
-    };
-
-    const onWalletsListChangeListener = (user: User) => {
-      const db = getDatabase();
-      const starCountRef = ref(db, `data/${user.uid}/${timestamp}/wallets`);
-
-      onValue(starCountRef, (snapshot) => {
-        setIsLoading(false);
-        setList(Object.keys(snapshot.val() || {}));
-      });
-    };
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-      getAndSetWalletNames(user);
-      onWalletsListChangeListener(user);
-    });
-  }, [timestamp]);
 
   return (
     <div className={"mb-4 flex flex-col gap-2"}>
