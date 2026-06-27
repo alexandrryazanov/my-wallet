@@ -5,9 +5,9 @@ import useConfirmation from '@/hooks/useConfirmation';
 import { formatValue } from '@/services/calc';
 import { loadRatesFromProvider } from '@/services/coinbase';
 import { CoinsForChartData } from '@/types/coins';
-import { UserData } from '@/types/firebase';
+import { useCoinNames, useCurrentUser, useWalletCoins } from '@/hooks/db';
+import { addCoin, removeCoin } from '@/services/db/walletRepository';
 
-import { child, get, getDatabase, onValue, ref, remove, set } from '@firebase/database';
 import {
   Button,
   getKeyValue,
@@ -23,7 +23,6 @@ import {
   TableHeader,
   TableRow
 } from '@nextui-org/react';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import React, { useEffect, useMemo, useState } from 'react';
 import { AiOutlineCloudDownload } from 'react-icons/ai';
 import { FaRegTrashCan } from 'react-icons/fa6';
@@ -46,11 +45,10 @@ const renderCell = <T,>(item: T, columnKey: string | number) => {
 const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
   const { showConfirmationPopup } = useConfirmation();
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [list, setList] = useState<
-    { symbol: string; amount: number; rate: number; total: number }[]
-  >([]);
-  const [existedCoins, setExistedCoins] = useState<{ name: string }[]>([]);
+  const user = useCurrentUser();
+  const { coins: list, isLoading } = useWalletCoins(timestamp, walletName);
+  const existedCoins = useCoinNames().map((name) => ({ name }));
+
   const [addingCoin, setAddingCoin] = useState<{
     listValue: string;
     newValue: string;
@@ -58,31 +56,39 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
     rate: string;
   }>({ listValue: "", newValue: "", amount: "0", rate: "0" });
 
+  useEffect(() => {
+    // Skip the initial empty list while coins are still loading, so the parent
+    // chart isn't briefly fed an empty dataset on mount / wallet switch.
+    if (isLoading) return;
+    onDataLoaded?.(list);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [list, isLoading]);
+
   const onAdd = async () => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
+    if (!user) return;
+
+    const coinSymbol = (
+      addingCoin.listValue === "new"
+        ? addingCoin.newValue
+        : addingCoin.listValue
+    )
+      .trim()
+      .toUpperCase();
+
+    if (!coinSymbol.length) return toast.error("Select correct coin");
+    if (list.find((coin) => coin.symbol === coinSymbol)) {
+      return toast.error("Such coin already exists");
+    }
 
     try {
-      const dbRef = ref(getDatabase());
-      const coinSymbol = (
-        addingCoin.listValue === "new"
-          ? addingCoin.newValue
-          : addingCoin.listValue
-      )
-        .trim()
-        .toUpperCase();
-
-      if (!coinSymbol.length) return toast.error("Select correct coin");
-      if (list.find((coin) => coin.symbol === coinSymbol)) {
-        return toast.error("Such coin already exists");
-      }
-
-      const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinSymbol}`;
-      const coinRatePath = `data/${auth.currentUser.uid}/${timestamp}/rates/${coinSymbol}`;
-
-      await set(child(dbRef, coinRatePath), +addingCoin.rate);
-      await set(child(dbRef, coinPath), +addingCoin.amount);
-
+      await addCoin(
+        user.uid,
+        timestamp,
+        walletName,
+        coinSymbol,
+        +addingCoin.amount,
+        +addingCoin.rate,
+      );
       toast.success(`Coin ${coinSymbol} has been added to ${walletName}!`);
     } catch (error) {
       console.error(error);
@@ -90,95 +96,17 @@ const Coins = ({ timestamp, walletName, onDataLoaded }: CoinsProps) => {
     }
   };
 
-  const onRemove = (coinName: string) => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
+  const onRemove = async (coinName: string) => {
+    if (!user) return;
 
     try {
-      const dbRef = ref(getDatabase());
-
-      const coinPath = `data/${auth.currentUser.uid}/${timestamp}/wallets/${walletName}/${coinName}`;
-
-      remove(child(dbRef, coinPath));
-
+      await removeCoin(user.uid, timestamp, walletName, coinName);
       toast.success(`Coin ${coinName} has been removed from ${walletName}!`);
     } catch (error) {
       console.error(error);
       toast.error("Could not remove coin");
     }
   };
-
-  useEffect(() => {
-    if (!timestamp || !walletName) return;
-
-    const auth = getAuth();
-
-    const getCoins = async () => {
-      if (!auth.currentUser) return;
-
-      try {
-        const dbRef = ref(getDatabase());
-
-        const snapshot = await get(
-          child(dbRef, `data/${auth.currentUser.uid}`),
-        );
-
-        if (!snapshot.exists()) return;
-
-        const results = snapshot.val() as UserData;
-        const coinNames = [
-          ...new Set(
-            Object.values(results).reduce<string[]>(
-              (acc, userDataOnDate) => [
-                ...acc,
-                ...Object.keys(userDataOnDate.rates || {}),
-              ],
-              [],
-            ),
-          ),
-        ];
-
-        setExistedCoins(coinNames.map((name) => ({ name })));
-      } catch (error) {
-        toast.error("Could not get existed coins\n" + String(error));
-      }
-    };
-
-    const onCoinsListChangeListener = (user: User) => {
-      const db = getDatabase();
-      const walletRef = ref(
-        db,
-        `data/${user.uid}/${timestamp}/wallets/${walletName}`,
-      );
-
-      onValue(walletRef, async (snapshot) => {
-        setIsLoading(true);
-        const rates =
-          (
-            await get(child(ref(db), `data/${user.uid}/${timestamp}/rates`))
-          ).val() || {};
-
-        const data = Object.entries<any>(snapshot.val() || {}).map(
-          ([symbol, amount]) => ({
-            symbol,
-            amount,
-            rate: rates[symbol] || 1,
-            total: Math.ceil((rates[symbol] || 1) * amount),
-          }),
-        );
-
-        setList(data);
-        onDataLoaded?.(data);
-        setIsLoading(false);
-      });
-    };
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) return;
-      getCoins();
-      onCoinsListChangeListener(user);
-    });
-  }, [timestamp, walletName]);
 
   const loadRate = async (symbol: string) => {
     const coinSymbol = symbol.trim().toUpperCase();
