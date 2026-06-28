@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   getKeyValue,
   Table as NextUITable,
@@ -33,6 +33,14 @@ const SummaryTable = () => {
 
   const columnNames = useMemo(() => walletNamesFrom(data), [data]);
   const rows = useMemo(() => walletsTableData(data), [data]);
+
+  // Warm the record routes ahead of the click. Navigation goes through
+  // `router.push` (NextUI's onRowAction), which — unlike <Link> — doesn't
+  // prefetch, so without this the first click on a row waits for a cold RSC
+  // fetch before anything (even the loading spinner) shows.
+  useEffect(() => {
+    rows.forEach((row) => router.prefetch(`/record/${row.key}`));
+  }, [rows, router]);
 
   const onRemove = async (timestamp: string | number) => {
     if (!user) return;
